@@ -1195,7 +1195,12 @@ The next assistant should proceed conservatively:
 
 See [docs/assistant_collaboration.md](docs/assistant_collaboration.md) for the
 shared workflow, role split, branching rules, and source-of-truth policy used by
-ChatGPT, Claude Chat, Codex, Claude Code, and Claude cowork.
+ChatGPT, Claude Chat, Codex, Claude Code, and Claude cowork. That document now
+defines the multi-agent lane split: ChatGPT proposes, Claude Chat challenges,
+the user approves, Codex or Claude Code implements only after approval, and
+Claude Cowork updates handoff state. Implementation requires an approved,
+committed spec. Current priority remains post-Phase 14.5 Strategy Tester
+evidence packaging and comparison only.
 
 ## 18. Files to Read First
 
