@@ -32,6 +32,15 @@ principles.
   architecture.
 - Maximum trades per day: `1`.
 
+Time caution:
+
+- Strategy session times are defined in America/New_York time.
+- Implementation must convert NY session windows through the existing project
+  session/time handling.
+- Be careful with broker server time, `BrokerServerUtcOffsetMinutes`, and DST
+  transitions.
+- Do not hardcode broker-local time as if it were New York time.
+
 ## Closed-Bar Discipline
 
 - H1 bar `[0]` is forbidden for trend decisions.
@@ -171,7 +180,8 @@ Take profit:
 
 `IDLE` to `SKIP_DAY`:
 
-- H1 trend is unavailable or neutral.
+- The last closed H1 close equals EMA50.
+- EMA50 is unavailable or cannot be calculated.
 - The first fully closed M15 candle disagrees with H1 trend.
 - The first M15 candle range is below `MinCRTRangePoints`.
 - No fully closed M15 candle is available before the search window ends.
@@ -209,7 +219,7 @@ Take profit:
 
 Any active state to `CANCELLED`:
 
-- The NY search/trade window ends before an entry intent.
+- The `11:00` NY window end is reached before an entry intent has fired.
 - More than `MaxBarsAfterSweep` closed M5 bars pass after sweep detection
   without reclaim confirmation.
 - Required candle, EMA, spread/session, or symbol data is unavailable.

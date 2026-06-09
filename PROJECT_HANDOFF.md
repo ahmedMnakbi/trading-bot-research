@@ -1,6 +1,6 @@
 # PROJECT_HANDOFF.md
 
-Last updated: 2026-06-03
+Last updated: 2026-06-10
 
 This handoff is for an AI assistant that has never seen this repository. It
 contains project history, current status, safety boundaries, implementation
