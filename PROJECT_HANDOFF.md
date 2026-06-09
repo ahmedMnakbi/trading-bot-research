@@ -1191,6 +1191,12 @@ The next assistant should proceed conservatively:
 10. Do not enable Surge, Vanguard, Challenge, Verification, Funded, or
     live-money trading.
 
+## Multi-assistant workflow
+
+See [docs/assistant_collaboration.md](docs/assistant_collaboration.md) for the
+shared workflow, role split, branching rules, and source-of-truth policy used by
+ChatGPT, Claude Chat, Codex, Claude Code, and Claude cowork.
+
 ## 18. Files to Read First
 
 1. `AGENTS.md`
