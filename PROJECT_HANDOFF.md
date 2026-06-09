@@ -93,16 +93,23 @@ Live/demo/backtest status:
 
 ## 3. Current Project Goal
 
-The project is currently just after Phase 14.5.
+The project is currently just after Phase 14.5, with an approved workflow update
+for faster manual strategy iteration.
 
-The immediate goal is to make Strategy Tester research results repeatable and
-evidence-driven:
+The immediate goal is to find a more consistent strategy through structured MT5
+Strategy Tester research:
 
-1. Export MT5 Strategy Tester reports/logs for ORB and VWAP runs.
-2. Collect each run into a local evidence package.
-3. Parse balances, trades/deals, diagnostics, and tester execution summaries.
-4. Compare ORB vs VWAP using a small, non-optimized test matrix.
-5. Keep all conclusions research-only.
+1. Draft strategy concepts/specs through the assistant lane workflow.
+2. Implement only from approved committed specs.
+3. Let the user run MT5 Strategy Tester locally.
+4. Capture manual results using `docs/manual_backtest_result_template.md`.
+5. Compare structured manual summaries before deciding whether to reject,
+   revise, expand the test, or consider a Trial-sandbox candidate.
+6. Keep all conclusions research-only.
+
+Full Strategy Tester evidence packaging remains optional for routine iteration,
+but it should be used for serious candidate strategies before any real or
+protected execution is considered.
 
 The next assistant should not expand live Trial execution, add symbols, add
 pending orders, add retries, add trailing stops, add breakeven logic, optimize
@@ -240,8 +247,9 @@ Problems remaining:
 - Surge 2 Step exact rules are not encoded.
 - Vanguard exact rules are not encoded.
 - Formal Trial observation evidence is incomplete/skipped.
-- Strategy Tester reports/logs for the latest ORB/VWAP results still need to be
-  exported and packaged through the new tools.
+- Strategy Tester reports/logs for the latest ORB/VWAP results can still be
+  exported and packaged through the Phase 14.5 tools, but full packaging is now
+  optional for routine fast iteration.
 - Strategy performance is not proven; the latest observed ORB/VWAP backtests
   were slightly negative.
 - Broker-specific behavior still needs manual review before any further Trial
@@ -951,12 +959,15 @@ Testing gaps:
 
 3. Strategy Tester results are not yet packaged.
    - Description: Phase 14.5 tooling exists, but current ORB/VWAP manual
-     results need raw exports.
+     results have not been packaged from raw exports.
    - Likely cause: tooling was just added.
    - Affected files: `scripts/collect_strategy_tester_evidence.py`,
      `scripts/compare_strategy_tester_runs.py`.
-   - Suggested fix: export report/log folders and run collector/comparator.
-   - Blocks research comparison: yes, but not source development.
+   - Suggested fix: for serious candidates, export report/log folders and run
+     collector/comparator. For faster iteration, use
+     `docs/manual_backtest_result_template.md`.
+   - Blocks research comparison: no, if structured manual summaries are used;
+     blocks formal evidence only.
 
 ### Low
 
@@ -1033,20 +1044,23 @@ scalping:
 
 Immediate next steps:
 
-- Export current ORB and VWAP MT5 Strategy Tester reports/logs into folders.
-- Keep each folder with its `.set` file and generated summary JSON if
-  available.
-- Run `scripts/collect_strategy_tester_evidence.py --simulated-execution` for
-  each run.
-- Run `scripts/compare_strategy_tester_runs.py` to create Markdown/JSON
-  comparison.
+- Use the fast strategy iteration workflow in
+  `docs/fast_strategy_iteration.md`.
+- Capture manual MT5 Strategy Tester summaries with
+  `docs/manual_backtest_result_template.md`.
 - Review diagnostics: entry intents, orders attempted, orders sent, trades,
-  net profit, drawdown, profit factor, warnings.
-- Do not change strategy rules until current evidence is packaged.
+  net profit, drawdown, profit factor, warnings, and bad behavior.
+- Decide whether each idea should be rejected, revised, expanded into a small
+  test matrix, or considered as a Trial-sandbox candidate.
+- Use full Strategy Tester evidence packaging for serious candidates before any
+  real/protected execution consideration.
+- Do not change strategy rules without an approved committed spec.
 
 Before more Trial testing:
 
+- Confirm the strategy has an approved committed spec.
 - Run source scan and compile.
+- Confirm at least basic manual Strategy Tester results exist.
 - Verify broker server UTC offset manually.
 - Verify symbol sessions manually.
 - Verify spread/stops/min lot/volume step/tick value/tick size for EURUSD.
@@ -1134,43 +1148,24 @@ The next assistant should proceed conservatively:
 
 2. Do not edit MQL5 strategy or execution logic at first.
 
-3. Ask the user for the raw exported MT5 Strategy Tester folders for the latest
-   ORB and VWAP runs, or tell the user how to export them if they are not in the
-   workspace.
+3. Use `docs/fast_strategy_iteration.md` and
+   `docs/manual_backtest_result_template.md` for the next manual MT5 Strategy
+   Tester loop.
 
-4. For each tester run, collect evidence:
+4. Help the user compare structured manual results. Determine whether each
+   result used the intended strategy, symbol, timeframe, date range, spread/model,
+   settings file, and tester execution mode.
 
-   ```powershell
-   python scripts/collect_strategy_tester_evidence.py ^
-     --run-id tester_eurusd_m5_orb_20260401_20260601 ^
-     --tester-artifacts path\to\orb_export_folder ^
-     --simulated-execution ^
-     --json
-   ```
+5. Decide with the user whether the next step is reject, revise, expand into a
+   small fixed test matrix, or promote a promising result to full evidence
+   packaging.
 
-   ```powershell
-   python scripts/collect_strategy_tester_evidence.py ^
-     --run-id tester_eurusd_m5_vwap_20260401_20260601 ^
-     --tester-artifacts path\to\vwap_export_folder ^
-     --simulated-execution ^
-     --json
-   ```
+6. For serious candidates only, use Phase 14.5 packaging/comparison tooling:
+   `scripts/collect_strategy_tester_evidence.py`,
+   `scripts/parse_strategy_tester_report.py`, and
+   `scripts/compare_strategy_tester_runs.py`.
 
-5. Compare runs:
-
-   ```powershell
-   python scripts/compare_strategy_tester_runs.py ^
-     data\processed\strategy_tester_evidence\tester_eurusd_m5_orb_20260401_20260601 ^
-     data\processed\strategy_tester_evidence\tester_eurusd_m5_vwap_20260401_20260601 ^
-     --output-md data\processed\strategy_tester_evidence\eurusd_m5_orb_vwap_compare.md ^
-     --output-json data\processed\strategy_tester_evidence\eurusd_m5_orb_vwap_compare.json
-   ```
-
-6. Review parser warnings and diagnostic summaries. Determine whether results
-   are based on correct strategy selection, correct symbol/timeframe, and
-   expected tester execution mode.
-
-7. Run quota-conscious verification:
+7. Run quota-conscious verification when implementation or safety docs change:
 
    ```powershell
    python -m pytest tests/test_mql5_phase14_5_strategy_tester_results.py tests/test_strategy_tester_workflow.py
@@ -1180,11 +1175,10 @@ The next assistant should proceed conservatively:
    rg -n "OrderSend|CTrade|\.Buy\(|\.Sell\(|PositionOpen|BuyLimit|SellLimit|BuyStop|SellStop" mql5 src/trading_bot/mql5
    ```
 
-8. Only after evidence is packaged, decide whether the next phase should be:
-   - more Strategy Tester evidence packaging,
-   - a small fixed-parameter matrix,
-   - strategy diagnostics review,
-   - or documentation/audit cleanup.
+8. Free Trial or demo testing may be considered only after an approved committed
+   spec, clean source scan, successful compile, and at least basic manual tester
+   results. Full evidence packaging remains recommended before any serious
+   candidate advances toward real/protected execution review.
 
 9. Do not optimize parameters yet.
 
@@ -1199,8 +1193,10 @@ ChatGPT, Claude Chat, Codex, Claude Code, and Claude cowork. That document now
 defines the multi-agent lane split: ChatGPT proposes, Claude Chat challenges,
 the user approves, Codex or Claude Code implements only after approval, and
 Claude Cowork updates handoff state. Implementation requires an approved,
-committed spec. Current priority remains post-Phase 14.5 Strategy Tester
-evidence packaging and comparison only.
+committed spec. The user has approved a faster manual-result workflow: current
+priority is fast strategy iteration with structured manual backtest summaries,
+while full Strategy Tester evidence packaging remains optional for serious
+candidate strategies before any real/protected execution consideration.
 
 ## 18. Files to Read First
 
@@ -1231,37 +1227,43 @@ evidence packaging and comparison only.
 9. `docs/strategy_tester_result_packaging.md`
    - Phase 14.5 packaging/comparison workflow.
 
-10. `docs/trial_micro_execution_checklist.md`
+10. `docs/fast_strategy_iteration.md`
+    - Current fast manual Strategy Tester iteration workflow.
+
+11. `docs/manual_backtest_result_template.md`
+    - Structured manual result format.
+
+12. `docs/trial_micro_execution_checklist.md`
     - Manual checklist before any Trial micro-execution consideration.
 
-11. `docs/troubleshooting.md`
+13. `docs/troubleshooting.md`
     - MT5 init code 32767 and gate-failure interpretation.
 
-12. `mql5/Experts/UpcomersNYSessionPropBot/UpcomersNYSessionPropBot.mq5`
+14. `mql5/Experts/UpcomersNYSessionPropBot/UpcomersNYSessionPropBot.mq5`
     - EA entrypoint and inputs.
 
-13. `mql5/Include/UpcomersNYSessionPropBot/Config.mqh`
+15. `mql5/Include/UpcomersNYSessionPropBot/Config.mqh`
     - Config, enums, gates, and protected-stage metadata logic.
 
-14. `mql5/Include/UpcomersNYSessionPropBot/TrialExecution.mqh`
+16. `mql5/Include/UpcomersNYSessionPropBot/TrialExecution.mqh`
     - Only Trial Risk-Free live micro-execution order path.
 
-15. `mql5/Include/UpcomersNYSessionPropBot/TesterExecution.mqh`
+17. `mql5/Include/UpcomersNYSessionPropBot/TesterExecution.mqh`
     - Only Strategy Tester simulated execution order path.
 
-16. `scripts/generate_ea_settings.py`
+18. `scripts/generate_ea_settings.py`
     - Preset generator.
 
-17. `scripts/parse_strategy_tester_report.py`
+19. `scripts/parse_strategy_tester_report.py`
     - Tester report parser.
 
-18. `scripts/collect_strategy_tester_evidence.py`
+20. `scripts/collect_strategy_tester_evidence.py`
     - Tester evidence packager.
 
-19. `scripts/compare_strategy_tester_runs.py`
+21. `scripts/compare_strategy_tester_runs.py`
     - Tester run comparator.
 
-20. `tests/test_mql5_phase14_5_strategy_tester_results.py`
+22. `tests/test_mql5_phase14_5_strategy_tester_results.py`
     - Tests for current result packaging behavior.
 
 ## 19. Open Questions
@@ -1272,10 +1274,9 @@ evidence packaging and comparison only.
 - What is the exact Dynamic Risk Shield calculation?
 - What is the verified current broker server UTC offset?
 - Are EURUSD symbol sessions verified in the user's MT5 terminal?
-- Can the user provide raw MT5 Strategy Tester report/log folders for the
-  latest ORB/VWAP runs?
-- Should the next phase remain evidence packaging, or begin a small fixed
-  Strategy Tester matrix?
+- Which strategy concept should enter the fast manual Strategy Tester loop next?
+- Should a promising manual result be promoted to full evidence packaging?
+- Should the next phase begin a small fixed Strategy Tester matrix?
 - Should formal Trial monitor-only evidence be collected before any further
   Trial micro-execution?
 - Are there any broker-specific stop-level, freeze-level, min-lot, volume-step,
@@ -1286,10 +1287,11 @@ evidence packaging and comparison only.
 This is a safety-first Upcomers MT5 trading-bot project whose final prop-firm
 execution direction is a native MQL5 Expert Advisor. Python is support-only.
 
-Current phase: post-Phase 14.5. Strategy Tester simulated execution works and
-result packaging/comparison tooling now exists. The next best action is to
-export, collect, parse, and compare current ORB/VWAP Strategy Tester runs as
-research-only evidence.
+Current phase: post-Phase 14.5. Strategy Tester simulated execution works,
+result packaging/comparison tooling exists, and the user has approved a faster
+manual-result workflow. The next best action is to run structured manual MT5
+Strategy Tester iterations using `docs/manual_backtest_result_template.md`, then
+package full evidence only for serious candidates.
 
 Biggest risks:
 
@@ -1304,8 +1306,8 @@ Biggest risks:
 
 Next best action:
 
-Package the current ORB and VWAP Strategy Tester exports with
-`collect_strategy_tester_evidence.py`, compare them with
-`compare_strategy_tester_runs.py`, review diagnostics, and only then decide
-whether to run a small fixed-parameter Strategy Tester matrix. Do not optimize,
-do not expand live execution, and do not enable protected accounts.
+Use the fast manual testing workflow to compare candidate strategy ideas with
+structured reported metrics. Reject, revise, expand testing, or promote to a
+Trial-sandbox candidate only after an approved committed spec, clean source
+scan, successful compile, and basic manual tester results. Do not optimize, do
+not expand live execution, and do not enable protected accounts.

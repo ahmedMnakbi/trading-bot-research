@@ -122,19 +122,43 @@ Do not perform any of the following without explicit approval:
 
 ## Current Priority
 
-Current priority is post-Phase 14.5 Strategy Tester evidence packaging and
-comparison only.
+Current priority is fast strategy iteration with structured manual MT5 Strategy
+Tester summaries. Full Strategy Tester evidence packaging remains available and
+recommended for serious candidate strategies, but it is no longer required for
+every exploratory run.
 
 Near-term work should focus on:
 
-- collecting exported Strategy Tester report/log folders
-- packaging evidence with `scripts/collect_strategy_tester_evidence.py`
-- parsing reports with `scripts/parse_strategy_tester_report.py`
-- comparing runs with `scripts/compare_strategy_tester_runs.py`
+- drafting approved committed specs before implementation
+- running local MT5 Strategy Tester research
+- reporting results with `docs/manual_backtest_result_template.md`
+- comparing structured manual results before deciding whether to reject, revise,
+  expand testing, or promote a strategy to Trial-sandbox candidate review
+- optionally packaging serious candidate results with
+  `scripts/collect_strategy_tester_evidence.py`,
+  `scripts/parse_strategy_tester_report.py`, and
+  `scripts/compare_strategy_tester_runs.py`
 - keeping all Strategy Tester conclusions research-only
 
 Do not optimize parameters, change strategy rules, or expand live Trial
 execution while this priority remains active.
+
+## Fast Manual Testing Mode
+
+Manual MT5 Strategy Tester results are allowed for faster strategy iteration.
+The user may report backtest metrics directly instead of packaging raw tester
+exports for every run.
+
+Strategy decisions should still be based on structured reported metrics. Use
+`docs/manual_backtest_result_template.md` so runs remain comparable and do not
+get lost in chat context. Manual reports are research notes, not formal audit
+evidence, profitability proof, or approval for Trial, Surge 2 Step, Vanguard,
+Challenge, Verification, Funded, or live-money execution.
+
+Free Trial or demo testing may be considered only after a strategy has an
+approved committed spec, a clean source scan, a successful compile, and at least
+basic manual tester results. Real-money and protected-account execution remain
+blocked unless explicitly approved in a later phase.
 
 ## Strategy-From-Scratch Workflow
 
