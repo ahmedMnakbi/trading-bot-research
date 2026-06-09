@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from trading_bot.mql5.models import ApprovalMetadata
 from trading_bot.mql5.settings import (
+    STRATEGY_TESTER_NYM15SR_PRESET,
     STRATEGY_TESTER_ORB_PRESET,
     STRATEGY_TESTER_PRESETS,
     STRATEGY_TESTER_VWAP_PRESET,
@@ -29,6 +30,9 @@ STRATEGY_TESTER_OUTPUTS = {
     STRATEGY_TESTER_VWAP_PRESET: Path(
         "data/processed/ea_settings/strategy_tester_eurusd_m5_vwap.set"
     ),
+    STRATEGY_TESTER_NYM15SR_PRESET: Path(
+        "data/processed/ea_settings/strategy_tester_eurusd_m5_ny_m15_sweep_reclaim.set"
+    ),
 }
 
 
@@ -42,6 +46,7 @@ def build_parser() -> argparse.ArgumentParser:
             TRIAL_MICRO_EXECUTION_PRESET,
             STRATEGY_TESTER_ORB_PRESET,
             STRATEGY_TESTER_VWAP_PRESET,
+            STRATEGY_TESTER_NYM15SR_PRESET,
         ],
         help="Known safe preset to generate.",
     )
