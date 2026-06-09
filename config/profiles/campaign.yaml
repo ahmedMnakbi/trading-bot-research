@@ -1,0 +1,13 @@
+profile:
+  description: Fixed-parameter cached-data campaign profile.
+  intended_use: Run experiment campaigns across configured symbols and timeframes.
+experiments:
+  symbols:
+    - BTC/USDT
+    - ETH/USDT
+  timeframes:
+    - 4h
+    - 1d
+  strategies:
+    - donchian_breakout
+    - ema_trend

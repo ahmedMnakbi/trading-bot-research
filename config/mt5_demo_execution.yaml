@@ -1,0 +1,13 @@
+# Legacy quarantine only. Python MT5 execution is non-prop-compatible and must
+# not be used for Challenge, Verification, Funded, Surge 2 Step, Vanguard, or other prop
+# deployment. Native MQL5 EA code is the only prop execution path.
+enabled: false
+demo_only: true
+live_trading_enabled: false
+max_spread_points: 30
+min_stop_distance_points: 10
+min_lot: 0.01
+lot_step: 0.01
+max_lot: 1.0
+max_deviation_points: 10
+magic_number: 55001

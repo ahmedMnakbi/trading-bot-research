@@ -1,0 +1,23 @@
+mode: paper
+live_trading_enabled: false
+execution_enabled: false
+real_orders_allowed: false
+private_api_allowed: false
+allow_leverage: false
+allow_shorting: false
+
+terminal:
+  initialize: true
+  path: null
+  timeout_seconds: 30
+
+discovery:
+  enabled: true
+  include_symbols: []
+  max_symbols: 200
+  categorize_unknown_as: unknown
+
+session:
+  timezone: America/New_York
+  start: "08:00"
+  end: "12:00"

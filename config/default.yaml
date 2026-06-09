@@ -1,0 +1,243 @@
+mode: paper
+live_trading_enabled: false
+market:
+  type: crypto_spot
+  exchange: sandbox
+  symbols:
+    - BTC/USDT
+    - ETH/USDT
+  timeframe: 4h
+
+data:
+  provider: ccxt
+  cache_dir: data/raw/ohlcv
+  since_days: 365
+  max_candles_per_request: 500
+  request_timeout_seconds: 30
+  retry_attempts: 3
+  retry_backoff_seconds: 2
+  validate_continuity: true
+  allow_partial_latest_candle: false
+
+risk:
+  risk_per_trade_pct: 0.25
+  min_stop_distance_bps: 10
+  max_stop_distance_pct: 10
+  max_open_positions: 3
+  max_total_exposure_pct: 30
+  max_daily_loss_pct: 1
+  max_weekly_loss_pct: 3
+  max_drawdown_pct: 10
+  require_stop_loss: true
+  allow_leverage: false
+  allow_shorting: false
+
+execution:
+  paper_starting_equity: 10000
+  fee_bps: 10
+  slippage_bps: 5
+
+backtesting:
+  starting_equity: 10000
+  benchmark: buy_and_hold
+  allow_shorting: false
+  allow_leverage: false
+  mark_to_market: true
+  reject_orders_without_stop: true
+  min_cash_pct: 5
+  max_bars: null
+
+strategy:
+  name: noop
+  params:
+    donchian_lookback: 20
+    ema_fast: 50
+    ema_slow: 200
+    atr_period: 14
+    atr_stop_multiple: 2.5
+    take_profit_r_multiple: null
+    risk_fraction_override: null
+
+validation:
+  enabled: true
+  train_pct: 60
+  test_pct: 40
+  min_train_bars: 300
+  min_test_bars: 100
+  walk_forward:
+    enabled: true
+    train_bars: 500
+    test_bars: 125
+    step_bars: 125
+  benchmarks:
+    - noop
+    - buy_and_hold
+  strategies:
+    - donchian_breakout
+    - ema_trend
+  regime:
+    enabled: true
+    trend_ma_period: 200
+    volatility_window: 30
+    high_volatility_quantile: 0.75
+    low_volatility_quantile: 0.25
+
+paper:
+  enabled: true
+  require_validation_run: true
+  validation_run_id: null
+  starting_equity: 10000
+  state_dir: data/processed/paper
+  decision_log_dir: data/processed/paper/decisions
+  poll_interval_seconds: 60
+  max_runtime_minutes: null
+  max_iterations: null
+  allow_public_live_data: true
+  simulated_order_latency_ms: 250
+  persist_state: true
+  resume_existing_state: true
+
+portfolio_paper:
+  enabled: true
+  starting_equity: 10000
+  state_dir: data/processed/portfolio_paper
+  decision_log_dir: data/processed/portfolio_paper/decisions
+  require_campaign_reference: true
+  campaign_run_id: null
+  max_iterations: null
+  poll_interval_seconds: 60
+  resume_existing_state: true
+  persist_state: true
+  symbols:
+    - BTC/USDT
+    - ETH/USDT
+  strategy_map:
+    BTC/USDT: donchian_breakout
+    ETH/USDT: ema_trend
+
+portfolio_risk:
+  max_open_positions: 3
+  max_total_exposure_pct: 30
+  max_symbol_exposure_pct: 15
+  max_strategy_exposure_pct: 20
+  max_new_positions_per_iteration: 1
+  min_cash_pct: 5
+  max_daily_loss_pct: 1
+  max_weekly_loss_pct: 3
+  max_drawdown_pct: 10
+  reject_correlated_entries: false
+  correlation_warning_threshold: 0.8
+
+failure_injection:
+  enabled: false
+  output_dir: data/processed/failure_tests
+  default_max_iterations: 5
+  fail_fast: false
+  write_incident_reports: true
+  scenarios:
+    - stale_data
+    - missing_candles
+    - duplicate_candles
+    - corrupted_state
+    - strategy_exception
+    - simulated_order_rejection
+    - state_write_failure
+    - interrupted_run
+
+incident_replay:
+  output_dir: data/processed/incidents
+  include_decision_logs: true
+  include_health_events: true
+  include_alerts: true
+  include_state_snapshots: true
+
+monitoring:
+  heartbeat_interval_seconds: 60
+  stale_data_multiplier: 2
+  max_consecutive_data_errors: 3
+  max_consecutive_order_errors: 3
+  alert_channels:
+    - console
+    - file
+
+reporting:
+  output_dir: data/processed/reports
+  include_html: true
+  include_markdown: true
+  include_json: true
+
+readiness:
+  enabled: true
+  min_paper_runtime_days: 14
+  min_paper_trades: 20
+  max_paper_drawdown_pct: 10
+  max_daily_loss_pct: 1
+  max_weekly_loss_pct: 3
+  max_unresolved_alerts: 0
+  require_no_kill_switch: true
+  require_no_state_corruption: true
+  require_validation_reference: true
+  max_backtest_to_paper_return_degradation_pct: 50
+  max_validation_to_paper_return_degradation_pct: 50
+  require_human_approval_for_live: true
+
+audit:
+  enabled: true
+  fail_on_live_trading_enabled: true
+  fail_on_real_order_code: true
+  fail_on_private_api_usage: true
+  fail_on_secret_leak: true
+  fail_on_missing_human_approval_gate: true
+  warn_on_missing_validation_artifacts: true
+  warn_on_missing_paper_artifacts: true
+  warn_on_missing_report_artifacts: true
+  artifact_integrity_enabled: true
+
+governance:
+  require_human_approval_for_live: true
+  live_trading_allowed: false
+  real_orders_allowed: false
+  private_api_allowed: false
+  approved_by: null
+  approved_at: null
+  approval_ticket: null
+
+experiments:
+  enabled: true
+  output_dir: data/processed/campaigns
+  use_cached_data_only: true
+  write_artifact_manifest: true
+  symbols:
+    - BTC/USDT
+    - ETH/USDT
+  timeframes:
+    - 4h
+    - 1d
+  strategies:
+    - donchian_breakout
+    - ema_trend
+  benchmarks:
+    - noop
+    - buy_and_hold
+  required_stages:
+    - backtest
+    - validation
+  review_gates:
+    min_validation_windows: 3
+    min_total_test_trades: 10
+    max_validation_drawdown_pct: 25
+    max_underperformance_vs_buy_and_hold_pct: 20
+    require_no_high_severity_warnings: true
+    require_positive_consistency_score: false
+  labels:
+    allow_candidate_labels: true
+    allowed_labels:
+      - REJECTED
+      - NEEDS_MORE_DATA
+      - PAPER_TRADING_CANDIDATE
+
+safety:
+  kill_switch_armed: true
+  halt_on_stale_data: true
+  halt_on_position_mismatch: true
+  halt_on_repeated_order_errors: true

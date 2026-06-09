@@ -1,0 +1,9 @@
+profile:
+  description: Single-symbol simulated paper profile.
+  intended_use: Run one simulated paper loop from cached public data.
+paper:
+  require_validation_run: false
+  allow_public_live_data: false
+  max_iterations: 3
+strategy:
+  name: donchian_breakout

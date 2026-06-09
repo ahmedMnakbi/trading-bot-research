@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trading-bot"
+version = "0.1.0rc1"
+description = "Safety-first experimental trading bot skeleton"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "python-dotenv",
+  "pydantic",
+  "pydantic-settings",
+  "PyYAML",
+  "typer",
+  "rich",
+  "structlog",
+  "pandas",
+  "numpy",
+  "ccxt",
+  "pyarrow",
+  "tenacity",
+  "python-dateutil",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "ruff",
+  "mypy",
+]
+
+[project.scripts]
+trading-bot = "trading_bot.main:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["tmp"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_configs = true
+ignore_missing_imports = true

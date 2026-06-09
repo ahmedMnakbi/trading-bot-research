@@ -1,0 +1,62 @@
+live_trading_enabled: false
+
+mt5:
+  enabled: false
+  mode: readonly
+  allow_account_info: false
+  allow_positions: false
+  allow_order_check: false
+  allow_order_send: false
+  allow_live_account: false
+  allow_demo_account: false
+  allow_balance_fetching: false
+
+ny_session:
+  enabled: false
+  timezone: America/New_York
+  fx_gold_crypto_session:
+    start: "08:00"
+    end: "17:00"
+  index_cash_session:
+    start: "09:30"
+    end: "16:00"
+  london_new_york_overlap:
+    start: "08:00"
+    end: "12:00"
+
+strategy_research:
+  enabled: false
+  strategies:
+    - opening_range_breakout
+    - vwap_trend_continuation
+    - dynamic_noise_band_vwap
+    - london_ny_overlap_momentum
+    - volume_volatility_expansion
+
+execution:
+  enabled: false
+  demo_only: true
+  live_allowed: false
+
+prop_firm:
+  execution_path: native_mql5_ea
+  python_mt5_execution_quarantined: true
+  account_programs_supported:
+    - TrialRiskFree
+    - Vanguard
+    - Surge2Step
+    - Custom
+  trial_required_before_challenge: true
+  protected_account_programs_blocked: true
+  surge_2_step_rules_verified: false
+  vanguard_rules_verified: false
+  prop_day_reset_timezone: UNCONFIRMED_CONSERVATIVE
+  prop_day_reset_timezone_confirmed: false
+  dynamic_risk_shield_verified: false
+  challenge_presets_enabled: false
+  required_challenge_preset_evidence:
+    trial_evidence: false
+    source_scan_pass: false
+    compile_pass: false
+    audit_package_id: ""
+    explicit_human_approval_metadata: ""

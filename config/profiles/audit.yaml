@@ -1,0 +1,6 @@
+profile:
+  description: Safety audit profile.
+  intended_use: Run validation and audit checks with default non-live safety gates.
+audit:
+  warn_on_missing_validation_artifacts: true
+  warn_on_missing_paper_artifacts: true

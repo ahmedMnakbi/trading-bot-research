@@ -1,0 +1,17 @@
+python-dotenv
+pydantic
+pydantic-settings
+PyYAML
+typer
+rich
+structlog
+pytest
+pytest-cov
+ruff
+mypy
+pandas
+numpy
+ccxt
+pyarrow
+tenacity
+python-dateutil

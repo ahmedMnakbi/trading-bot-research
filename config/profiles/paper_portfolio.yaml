@@ -1,0 +1,11 @@
+profile:
+  description: Multi-symbol simulated portfolio paper profile.
+  intended_use: Run portfolio paper with shared simulated cash from cached data.
+portfolio_paper:
+  require_campaign_reference: false
+  max_iterations: 3
+  symbols:
+    - BTC/USDT
+    - ETH/USDT
+portfolio_risk:
+  max_new_positions_per_iteration: 1

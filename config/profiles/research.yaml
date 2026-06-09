@@ -1,0 +1,11 @@
+profile:
+  description: Local research defaults for fixture-based inspection.
+  intended_use: Validate config, inspect cached data, and run small backtests.
+market:
+  symbols:
+    - BTC/USDT
+  timeframe: 4h
+backtesting:
+  max_bars: 300
+paper:
+  require_validation_run: false
