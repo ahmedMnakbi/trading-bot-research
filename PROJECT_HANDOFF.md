@@ -111,6 +111,14 @@ Full Strategy Tester evidence packaging remains optional for routine iteration,
 but it should be used for serious candidate strategies before any real or
 protected execution is considered.
 
+Current first fast-iteration candidate:
+
+- `NY M15 Sweep Reclaim`
+- Spec: `docs/strategies/ny_m15_sweep_reclaim.md`
+- Status: research spec stage only; not implemented.
+- Next step after user approval: Claude Code or Codex implementation on a
+  feature branch from the approved committed spec.
+
 The next assistant should not expand live Trial execution, add symbols, add
 pending orders, add retries, add trailing stops, add breakeven logic, optimize
 parameters, or enable Surge/Vanguard/protected stages.
