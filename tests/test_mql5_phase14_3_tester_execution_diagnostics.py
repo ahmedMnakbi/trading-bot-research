@@ -216,6 +216,71 @@ def test_inspect_ea_settings_accepts_safe_vwap_tester_preset(tmp_path: Path) -> 
     assert result["settings"]["StrategySelection"] == "STRATEGY_VWAP_TREND_CONTINUATION"
 
 
+def test_inspect_ea_settings_accepts_nacusd_research_tester_preset(
+    tmp_path: Path,
+) -> None:
+    set_path = tmp_path / (
+        "strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_direction.set"
+    )
+    set_path.write_text(
+        "\n".join(
+            [
+                "EnableTrading=false",
+                "EnableTrialExecution=false",
+                "StrategyTesterExecutionMode=true",
+                "EnablePropChallengeMode=false",
+                "AccountStage=ACCOUNT_STAGE_MONITOR_ONLY",
+                "AllowedSymbols=NACUSD.c",
+                "StrategySelection=STRATEGY_NY_M15_SWEEP_RECLAIM",
+                "StrategyTimeframe=PERIOD_M5",
+                "NYM15SRRequireM15DirectionAgreement=false",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    set_path.with_suffix(".summary.json").write_text(
+        json.dumps(
+            {
+                "preset_name": (
+                    "strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim-"
+                    "relaxed-m15-direction"
+                )
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = inspect_settings_file(set_path)
+
+    assert result["status"] == "PASS"
+    assert result["settings"]["AllowedSymbols"] == "NACUSD.c"
+
+
+def test_inspect_ea_settings_rejects_unapproved_tester_symbol(
+    tmp_path: Path,
+) -> None:
+    set_path = tmp_path / "strategy_tester_xauusd_m5.set"
+    set_path.write_text(
+        "\n".join(
+            [
+                "EnableTrading=false",
+                "EnableTrialExecution=false",
+                "StrategyTesterExecutionMode=true",
+                "EnablePropChallengeMode=false",
+                "AccountStage=ACCOUNT_STAGE_MONITOR_ONLY",
+                "AllowedSymbols=XAUUSD",
+                "StrategySelection=STRATEGY_NY_M15_SWEEP_RECLAIM",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    result = inspect_settings_file(set_path)
+
+    assert result["status"] == "FAIL"
+    assert "strategy_tester_requires_approved_research_symbol" in result["failures"]
+
+
 def test_no_new_order_call_locations_for_phase14_3() -> None:
     for path in MQL5_ROOT.rglob("*"):
         if path.suffix.lower() not in {".mq5", ".mqh"} or path in {

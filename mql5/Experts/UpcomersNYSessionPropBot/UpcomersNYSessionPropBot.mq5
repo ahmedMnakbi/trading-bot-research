@@ -79,6 +79,7 @@ input double NYM15SRMinSweepPoints = 20.0;
 input double NYM15SRStopBufferPoints = 50.0;
 input double NYM15SRTakeProfitR = 2.0;
 input int NYM15SRMaxBarsAfterSweep = 12;
+input bool NYM15SRRequireM15DirectionAgreement = true;
 input int StrategySignalCooldownSeconds = 900;
 input int MaxSignalsPerStrategyPerSession = 1;
 input ENUM_UPCOMERS_BROKER_TIME_MODE BrokerTimeMode = BROKER_TIME_MANUAL_UTC_OFFSET;
@@ -845,6 +846,7 @@ void EvaluateSelectedStrategy(SStrategyDecision &decision)
             NYM15SRStopBufferPoints,
             NYM15SRTakeProfitR,
             NYM15SRMaxBarsAfterSweep,
+            NYM15SRRequireM15DirectionAgreement,
             MaxTradesPerDay,
             MinHoldSeconds
          );

@@ -114,6 +114,7 @@ public:
       const double stopBufferPoints    = 50.0,
       const double takeProfitR         = 2.0,
       const int    maxBarsAfterSweep   = 12,
+      const bool   requireM15DirectionAgreement = true,
       const int    maxTradesPerDay     = 1,
       const int    minHoldSeconds      = 180
    )
@@ -325,9 +326,11 @@ public:
             return;
          }
 
-         // Direction must match H1 trend; "do not keep searching for later M15 candles"
+         // Baseline mode requires the first M15 direction to match H1 trend.
+         // Research variants may relax only this setup filter while keeping H1
+         // as the trade direction.
          bool directionMatch = (h1Bullish && m15Bull) || (h1Bearish && m15Bear);
-         if(!directionMatch)
+         if(requireM15DirectionAgreement && !directionMatch)
          {
             m_phase = NYM15SR_PHASE_SKIP_DAY;
             SetSkipDecision(decision, SIGNAL_SKIP_SESSION, strategyName, symbol, timeframe,
@@ -347,8 +350,9 @@ public:
          SetSetupFormingDecision(decision, strategyName, symbol, timeframe,
             "NYM15SR_CRT_CANDLE_SET",
             StringFormat(
-               "first M15 candle set: direction=%s H=%.5f L=%.5f; waiting for M5 sweep",
+               "first M15 candle set: direction=%s m15_direction_agreement=%s H=%.5f L=%.5f; waiting for M5 sweep",
                m_isBullish ? "BULLISH" : "BEARISH",
+               requireM15DirectionAgreement ? "REQUIRED" : "RELAXED",
                m_m15High, m_m15Low),
             now);
          SetDecisionContext(decision, symbolClass, sessionTag, nyTime, hasNYTime,

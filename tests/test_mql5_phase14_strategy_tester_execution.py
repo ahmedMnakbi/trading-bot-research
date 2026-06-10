@@ -31,6 +31,7 @@ INCLUDE_ROOT = MQL5_ROOT / "Include" / "UpcomersNYSessionPropBot"
 CONFIG = INCLUDE_ROOT / "Config.mqh"
 TRIAL_EXECUTION = INCLUDE_ROOT / "TrialExecution.mqh"
 TESTER_EXECUTION = INCLUDE_ROOT / "TesterExecution.mqh"
+NYM15SR_STRATEGY = INCLUDE_ROOT / "NYM15SweepReclaim.mqh"
 
 
 def _ea_text() -> str:
@@ -100,6 +101,17 @@ def test_strategy_tester_symbol_gate_uses_strict_research_allowlist() -> None:
     assert "EURUSD, NACUSD.c, or SPCUSD.c" in config_text
     assert "TESTER_ALLOWED_SYMBOLS" in ea_text
     assert "EURUSD|NACUSD.c|SPCUSD.c" in ea_text
+
+
+def test_nym15sr_m15_direction_variant_is_strict_by_default() -> None:
+    ea_text = _ea_text()
+    strategy_text = NYM15SR_STRATEGY.read_text(encoding="utf-8")
+
+    assert _input_value("NYM15SRRequireM15DirectionAgreement") == "true"
+    assert "NYM15SRRequireM15DirectionAgreement" in ea_text
+    assert "const bool   requireM15DirectionAgreement = true" in strategy_text
+    assert "if(requireM15DirectionAgreement && !directionMatch)" in strategy_text
+    assert "NYM15SR_M15_DISAGREES_WITH_H1" in strategy_text
 
 
 @pytest.mark.parametrize("symbol", ["EURUSD", "NACUSD.c", "SPCUSD.c"])

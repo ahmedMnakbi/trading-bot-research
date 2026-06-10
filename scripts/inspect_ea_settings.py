@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 SECRET_KEY_PARTS = ("password", "passwd", "secret", "token", "key", "credential", "login")
+APPROVED_STRATEGY_TESTER_SYMBOLS = {"EURUSD", "NACUSD.c", "SPCUSD.c"}
 IMPORTANT_KEYS = (
     "EnableTrading",
     "EnableTrialExecution",
@@ -111,8 +112,8 @@ def _settings_failures(
                 failures.append(f"strategy_tester_requires_{key}_false")
         if settings.get("AccountStage") != "ACCOUNT_STAGE_MONITOR_ONLY":
             failures.append("strategy_tester_requires_monitor_only_stage")
-        if settings.get("AllowedSymbols") != "EURUSD":
-            failures.append("strategy_tester_requires_eurusd")
+        if settings.get("AllowedSymbols") not in APPROVED_STRATEGY_TESTER_SYMBOLS:
+            failures.append("strategy_tester_requires_approved_research_symbol")
     return failures
 
 

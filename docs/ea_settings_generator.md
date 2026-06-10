@@ -58,6 +58,9 @@ Phase 14 adds research-only Strategy Tester presets:
 ```powershell
 python scripts/generate_ea_settings.py --preset strategy-tester-eurusd-m5-orb --json
 python scripts/generate_ea_settings.py --preset strategy-tester-eurusd-m5-vwap --json
+python scripts/generate_ea_settings.py --preset strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim --json
+python scripts/generate_ea_settings.py --preset strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim-relaxed-m15-direction --json
+python scripts/generate_ea_settings.py --preset strategy-tester-spcusd-c-m5-ny-m15-sweep-reclaim --json
 ```
 
 These presets generate `.set` files for MT5 Strategy Tester only:
@@ -68,10 +71,14 @@ These presets generate `.set` files for MT5 Strategy Tester only:
 - `EnablePropChallengeMode=false`
 - `AccountProgram=ACCOUNT_PROGRAM_TRIAL_RISK_FREE`
 - `AccountStage=ACCOUNT_STAGE_MONITOR_ONLY`
-- `AllowedSymbols=EURUSD`
+- `AllowedSymbols=EURUSD`, `NACUSD.c`, or `SPCUSD.c` depending on the approved
+  research tester preset
 - `StrategyTimeframe=PERIOD_M5`
 - ORB preset: `StrategySelection=STRATEGY_OPENING_RANGE_BREAKOUT`
 - VWAP preset: `StrategySelection=STRATEGY_VWAP_TREND_CONTINUATION`
+- NYM15SR presets: `StrategySelection=STRATEGY_NY_M15_SWEEP_RECLAIM`
+- NACUSD relaxed M15 direction variant:
+  `NYM15SRRequireM15DirectionAgreement=false`
 
 The EA refuses `StrategyTesterExecutionMode=true` unless MT5 reports Strategy Tester runtime. These presets are not Trial live-chart settings, not Surge 2 Step or Vanguard settings, and not approval for protected account use.
 

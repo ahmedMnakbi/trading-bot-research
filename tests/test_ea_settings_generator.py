@@ -9,6 +9,7 @@ from scripts import generate_ea_settings
 from trading_bot.mql5.models import ApprovalMetadata
 from trading_bot.mql5.settings import (
     STRATEGY_TESTER_NYM15SR_NACUSD_PRESET,
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET,
     STRATEGY_TESTER_NYM15SR_PRESET,
     STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET,
     TRIAL_EXECUTION_MANUAL_CONFIRMATION,
@@ -261,6 +262,7 @@ def test_nym15sr_preset_validates_and_generates_set_file(tmp_path: Path) -> None
     assert "NYM15SRStopBufferPoints=50.00" in text
     assert "NYM15SRTakeProfitR=2.00" in text
     assert "NYM15SRMaxBarsAfterSweep=12" in text
+    assert "NYM15SRRequireM15DirectionAgreement=true" in text
 
 
 def test_nym15sr_preset_uses_correct_strategy_selection() -> None:
@@ -297,6 +299,7 @@ def test_nym15sr_preset_default_fields_match_spec() -> None:
     assert settings.nym15sr_stop_buffer_points == 50.0
     assert settings.nym15sr_take_profit_r == 2.0
     assert settings.nym15sr_max_bars_after_sweep == 12
+    assert settings.nym15sr_require_m15_direction_agreement is True
 
 
 def test_generate_ea_settings_script_generates_nym15sr_preset(
@@ -330,6 +333,7 @@ def test_generate_ea_settings_script_generates_nym15sr_preset(
     ("preset", "symbol"),
     [
         (STRATEGY_TESTER_NYM15SR_NACUSD_PRESET, "NACUSD.c"),
+        (STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET, "NACUSD.c"),
         (STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET, "SPCUSD.c"),
     ],
 )
@@ -352,6 +356,9 @@ def test_index_nym15sr_presets_validate_and_generate_set_files(
     assert result.settings.enable_trading is False
     assert result.settings.enable_trial_execution is False
     assert result.settings.strategy_tester_execution_mode is True
+    assert result.settings.nym15sr_require_m15_direction_agreement is (
+        preset != STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET
+    )
 
     text = output.read_text(encoding="utf-8")
     assert f"AllowedSymbols={symbol}" in text
@@ -384,6 +391,12 @@ def test_index_nym15sr_presets_validate_and_generate_set_files(
         assert f"{key}={value}" in text
     assert "NYM15SRTakeProfitR=2.00" in text
     assert "NYM15SRMaxBarsAfterSweep=12" in text
+    expected_agreement = (
+        "false"
+        if preset == STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET
+        else "true"
+    )
+    assert f"NYM15SRRequireM15DirectionAgreement={expected_agreement}" in text
     assert "not optimized index values" in text
 
 
@@ -391,6 +404,7 @@ def test_index_nym15sr_presets_validate_and_generate_set_files(
     ("preset", "symbol"),
     [
         (STRATEGY_TESTER_NYM15SR_NACUSD_PRESET, "NACUSD.c"),
+        (STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET, "NACUSD.c"),
         (STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET, "SPCUSD.c"),
     ],
 )
@@ -449,5 +463,38 @@ def test_nacusd_nym15sr_preset_generates_ready_to_run_values(tmp_path: Path) -> 
     assert "NYM15SRStopBufferPoints=500.00" in text
     assert "NYM15SRTakeProfitR=2.00" in text
     assert "NYM15SRMaxBarsAfterSweep=12" in text
+    assert "NYM15SRRequireM15DirectionAgreement=true" in text
     assert "NACUSD.c" in text
     assert "NQCUSD.c" not in text
+
+
+def test_nacusd_relaxed_m15_direction_variant_is_tester_only(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "nacusd_relaxed_m15.set"
+    result = generate_settings_artifacts(
+        output_path=output,
+        preset_name=STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET,
+        stage="MonitorOnly",
+    )
+
+    assert result.status == "PASS"
+    assert result.settings.allowed_symbols == "NACUSD.c"
+    assert result.settings.enable_trading is False
+    assert result.settings.enable_trial_execution is False
+    assert result.settings.strategy_tester_execution_mode is True
+    assert result.settings.nym15sr_require_m15_direction_agreement is False
+
+    text = output.read_text(encoding="utf-8")
+    assert "AllowedSymbols=NACUSD.c" in text
+    assert "StrategySelection=STRATEGY_NY_M15_SWEEP_RECLAIM" in text
+    assert "StrategyTimeframe=PERIOD_M5" in text
+    assert "EnableTrading=false" in text
+    assert "EnableTrialExecution=false" in text
+    assert "StrategyTesterExecutionMode=true" in text
+    assert "MaxSpreadPoints=1000" in text
+    assert "NYM15SRMinCRTRangePoints=3000.00" in text
+    assert "NYM15SRMinSweepPoints=500.00" in text
+    assert "NYM15SRStopBufferPoints=500.00" in text
+    assert "NYM15SRRequireM15DirectionAgreement=false" in text
+    assert "relaxes the first M15 candle direction agreement filter" in text

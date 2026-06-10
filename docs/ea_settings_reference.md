@@ -64,3 +64,16 @@ These must remain false:
 - `AllowScalpingUnder2Minutes=false`
 
 Phase 14 contains no protected account trading, prop credentials, MT5 login, Python-controlled MT5 prop execution, pending orders, scaling, retries, trailing stop, breakeven modification, or challenge approval. Live Trial micro-execution remains isolated in `TrialExecution.mqh`; Strategy Tester simulated execution is separately isolated in `TesterExecution.mqh` and can activate only inside MT5 Strategy Tester.
+
+## NYM15SR Research Inputs
+
+- `NYM15SRRequireM15DirectionAgreement=true`: default baseline behavior. The
+  first closed NY M15 candle must agree with the H1 EMA trend.
+- `NYM15SRRequireM15DirectionAgreement=false`: research-only Strategy Tester
+  variant for NACUSD.c comparison. It relaxes only the first M15 candle
+  direction filter; H1 trend direction, sweep/reclaim/entry rules, safety
+  gates, and tester-only execution gates remain unchanged.
+
+The relaxed variant is not optimized, not approved for Trial/live/protected
+execution, and should be compared against the strict baseline over the same
+symbol, timeframe, broker, model, spread behavior, and date range.

@@ -119,6 +119,7 @@ class EaSettings:
     nym15sr_stop_buffer_points: float = 50.0
     nym15sr_take_profit_r: float = 2.0
     nym15sr_max_bars_after_sweep: int = 12
+    nym15sr_require_m15_direction_agreement: bool = True
     strategy_signal_cooldown_seconds: int = 900
     max_signals_per_strategy_per_session: int = 1
     broker_time_mode: str = "BROKER_TIME_MANUAL_UTC_OFFSET"

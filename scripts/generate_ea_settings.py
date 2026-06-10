@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from trading_bot.mql5.models import ApprovalMetadata
 from trading_bot.mql5.settings import (
     STRATEGY_TESTER_NYM15SR_NACUSD_PRESET,
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET,
     STRATEGY_TESTER_NYM15SR_PRESET,
     STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET,
     STRATEGY_TESTER_ORB_PRESET,
@@ -38,6 +39,9 @@ STRATEGY_TESTER_OUTPUTS = {
     STRATEGY_TESTER_NYM15SR_NACUSD_PRESET: Path(
         "data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim.set"
     ),
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET: Path(
+        "data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_direction.set"
+    ),
     STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: Path(
         "data/processed/ea_settings/strategy_tester_spcusd_c_m5_ny_m15_sweep_reclaim.set"
     ),
@@ -56,6 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
             STRATEGY_TESTER_VWAP_PRESET,
             STRATEGY_TESTER_NYM15SR_PRESET,
             STRATEGY_TESTER_NYM15SR_NACUSD_PRESET,
+            STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET,
             STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET,
         ],
         help="Known safe preset to generate.",
