@@ -67,7 +67,7 @@ private:
       if(m_emaHandle == INVALID_HANDLE || m_emaSymbol != symbol || m_emaPeriod != emaPeriod)
       {
          ReleaseEmaHandle();
-         m_emaHandle = iEMA(symbol, PERIOD_H1, emaPeriod, 0, PRICE_CLOSE);
+         m_emaHandle = iMA(symbol, PERIOD_H1, emaPeriod, 0, MODE_EMA, PRICE_CLOSE);
          if(m_emaHandle == INVALID_HANDLE)
             return false;
          m_emaSymbol = symbol;
