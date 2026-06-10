@@ -114,10 +114,24 @@ protected execution is considered.
 Current first fast-iteration candidate:
 
 - `NY M15 Sweep Reclaim`
-- Spec: `docs/strategies/ny_m15_sweep_reclaim.md`
-- Status: research spec stage only; not implemented.
-- Next step after user approval: Claude Code or Codex implementation on a
-  feature branch from the approved committed spec.
+- Status: implemented and merged to `main`.
+- Strategy type: research/demo Strategy Tester candidate.
+- Source spec: `docs/strategies/ny_m15_sweep_reclaim.md`
+- Implementation file:
+  `mql5/Include/UpcomersNYSessionPropBot/NYM15SweepReclaim.mqh`
+- Tester preset: `strategy-tester-eurusd-m5-ny-m15-sweep-reclaim`
+- Generated `.set` path:
+  `data/processed/ea_settings/strategy_tester_eurusd_m5_ny_m15_sweep_reclaim.set`
+- Verification before merge:
+  source scan PASS; focused pytest PASS; settings generator tests PASS;
+  MetaEditor compile PASS with 0 errors.
+- Current next step:
+  user runs MT5 Strategy Tester on EURUSD M5 and reports manual results using
+  `docs/manual_backtest_result_template.md`.
+- Safety:
+  no live/protected execution is approved. Demo/free-trial use may be
+  considered only after tester behavior is reviewed. Pine Script / TradingView
+  companion work is paused.
 
 The next assistant should not expand live Trial execution, add symbols, add
 pending orders, add retries, add trailing stops, add breakeven logic, optimize
