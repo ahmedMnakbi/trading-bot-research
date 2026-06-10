@@ -108,9 +108,14 @@ def test_nym15sr_m15_direction_variant_is_strict_by_default() -> None:
     strategy_text = NYM15SR_STRATEGY.read_text(encoding="utf-8")
 
     assert _input_value("NYM15SRRequireM15DirectionAgreement") == "true"
+    assert _input_value("NYM15SRRequireReclaimBreakoutEntry") == "true"
     assert "NYM15SRRequireM15DirectionAgreement" in ea_text
+    assert "NYM15SRRequireReclaimBreakoutEntry" in ea_text
     assert "const bool   requireM15DirectionAgreement = true" in strategy_text
+    assert "const bool   requireReclaimBreakoutEntry = true" in strategy_text
     assert "if(requireM15DirectionAgreement && !directionMatch)" in strategy_text
+    assert "bar.time == m_reclaimBarTime" in strategy_text
+    assert "RECLAIM_HOLD" in strategy_text
     assert "NYM15SR_M15_DISAGREES_WITH_H1" in strategy_text
 
 

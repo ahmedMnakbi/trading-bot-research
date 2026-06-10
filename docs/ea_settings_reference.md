@@ -73,7 +73,13 @@ Phase 14 contains no protected account trading, prop credentials, MT5 login, Pyt
   variant for NACUSD.c comparison. It relaxes only the first M15 candle
   direction filter; H1 trend direction, sweep/reclaim/entry rules, safety
   gates, and tester-only execution gates remain unchanged.
+- `NYM15SRRequireReclaimBreakoutEntry=true`: default baseline behavior. After
+  reclaim, a later closed M5 candle must break the reclaim candle high/low.
+- `NYM15SRRequireReclaimBreakoutEntry=false`: research-only Strategy Tester
+  variant for NACUSD.c comparison. After reclaim, entry can trigger on a later
+  closed M5 candle that remains on the reclaimed side of the stored M15 level.
+  The reclaim candle itself still cannot be the entry candle.
 
-The relaxed variant is not optimized, not approved for Trial/live/protected
+The relaxed variants are not optimized, not approved for Trial/live/protected
 execution, and should be compared against the strict baseline over the same
 symbol, timeframe, broker, model, spread behavior, and date range.

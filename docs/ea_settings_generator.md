@@ -60,6 +60,8 @@ python scripts/generate_ea_settings.py --preset strategy-tester-eurusd-m5-orb --
 python scripts/generate_ea_settings.py --preset strategy-tester-eurusd-m5-vwap --json
 python scripts/generate_ea_settings.py --preset strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim --json
 python scripts/generate_ea_settings.py --preset strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim-relaxed-m15-direction --json
+python scripts/generate_ea_settings.py --preset strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim-reclaim-hold-entry --json
+python scripts/generate_ea_settings.py --preset strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim-relaxed-m15-reclaim-hold-entry --json
 python scripts/generate_ea_settings.py --preset strategy-tester-spcusd-c-m5-ny-m15-sweep-reclaim --json
 ```
 
@@ -79,6 +81,8 @@ These presets generate `.set` files for MT5 Strategy Tester only:
 - NYM15SR presets: `StrategySelection=STRATEGY_NY_M15_SWEEP_RECLAIM`
 - NACUSD relaxed M15 direction variant:
   `NYM15SRRequireM15DirectionAgreement=false`
+- NACUSD reclaim-hold entry variant:
+  `NYM15SRRequireReclaimBreakoutEntry=false`
 
 The EA refuses `StrategyTesterExecutionMode=true` unless MT5 reports Strategy Tester runtime. These presets are not Trial live-chart settings, not Surge 2 Step or Vanguard settings, and not approval for protected account use.
 

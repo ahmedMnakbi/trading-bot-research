@@ -74,6 +74,26 @@ Generated variant preset:
 
 `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_direction.set`
 
+## Second Mechanical Variant
+
+The next observed bottleneck was days that reached `ENTRY_PENDING` after reclaim
+but never broke the reclaim candle high/low before window expiry. A second
+default-strict input was added:
+
+- New EA input: `NYM15SRRequireReclaimBreakoutEntry`
+- Default: `true`
+- Baseline behavior: unchanged
+- Variant behavior: set to `false` so entry can trigger on a later closed M5
+  candle that remains on the reclaimed side of the stored M15 level
+- The reclaim candle itself still cannot be the entry candle
+- Sweep, reclaim, stop, take-profit, closed-bar discipline, one-trade daily cap,
+  and tester safety gates remain unchanged
+
+Generated reclaim-hold variant presets:
+
+- `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_reclaim_hold_entry.set`
+- `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_reclaim_hold_entry.set`
+
 Next manual MT5 Strategy Tester comparison should keep the same symbol,
 timeframe, broker, model, spread behavior, and date range as the baseline:
 
@@ -85,8 +105,12 @@ timeframe, broker, model, spread behavior, and date range as the baseline:
   `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim.set`
 - Variant preset:
   `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_direction.set`
+- Reclaim-hold preset:
+  `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_reclaim_hold_entry.set`
+- Combined relaxed M15 plus reclaim-hold preset:
+  `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_reclaim_hold_entry.set`
 
 Record results with `docs/manual_backtest_result_template.md`. Compare at least
 entry intents, tester orders attempted, trades, net profit, drawdown, profit
 factor, win rate, `NYM15SR_M15_DISAGREES_WITH_H1`, `NYM15SR_WINDOW_EXPIRED`,
-and any tester gate failures.
+`NYM15SR_ENTRY_PENDING`, and any tester gate failures.

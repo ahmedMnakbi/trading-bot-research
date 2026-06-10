@@ -115,6 +115,7 @@ public:
       const double takeProfitR         = 2.0,
       const int    maxBarsAfterSweep   = 12,
       const bool   requireM15DirectionAgreement = true,
+      const bool   requireReclaimBreakoutEntry = true,
       const int    maxTradesPerDay     = 1,
       const int    minHoldSeconds      = 180
    )
@@ -541,7 +542,7 @@ public:
       }
 
       // =====================================================================
-      // ENTRY_PENDING: wait for closed M5 candle to break the reclaim level
+      // ENTRY_PENDING: wait for a later closed M5 candle to trigger entry
       // =====================================================================
       if(m_phase == NYM15SR_PHASE_ENTRY_PENDING)
       {
@@ -586,10 +587,16 @@ public:
          double stopLoss   = 0.0;
          double takeProfit = 0.0;
          double entryPrice = 0.0;
+         double triggerLevel = requireReclaimBreakoutEntry
+            ? m_reclaimLevel
+            : (m_isBullish ? m_m15Low : m_m15High);
+         string triggerMode = requireReclaimBreakoutEntry
+            ? "RECLAIM_BREAKOUT"
+            : "RECLAIM_HOLD";
 
          if(m_isBullish)
          {
-            if(bar.close > m_reclaimLevel)
+            if(bar.close > triggerLevel)
             {
                entryPrice = bar.close;
                stopLoss   = m_sweepExtreme - (stopBufferPoints * point);
@@ -604,7 +611,7 @@ public:
          }
          else
          {
-            if(bar.close < m_reclaimLevel)
+            if(bar.close < triggerLevel)
             {
                entryPrice = bar.close;
                stopLoss   = m_sweepExtreme + (stopBufferPoints * point);
@@ -624,8 +631,8 @@ public:
          {
             SetSetupFormingDecision(decision, strategyName, symbol, timeframe,
                "NYM15SR_ENTRY_PENDING",
-               StringFormat("entry pending; breakout trigger at %.5f not yet reached",
-                  m_reclaimLevel),
+               StringFormat("entry pending; %s trigger at %.5f not yet reached",
+                  triggerMode, triggerLevel),
                now);
             SetDecisionContext(decision, symbolClass, sessionTag, nyTime, hasNYTime,
                minHoldSeconds, spreadStatus, volumeStatus);
@@ -658,11 +665,12 @@ public:
             reasonCode,
             StringFormat(
                "monitor-only %s intent: close=%.5f trigger=%.5f SL=%.5f TP=%.5f (%.1fR) "
-               "sweep=%.5f buf=%.0fpts M15=%s",
+               "sweep=%.5f buf=%.0fpts M15=%s trigger_mode=%s",
                entrySignal == SIGNAL_ENTER_LONG_INTENT ? "long" : "short",
-               entryPrice, m_reclaimLevel, stopLoss, takeProfit, takeProfitR,
+               entryPrice, triggerLevel, stopLoss, takeProfit, takeProfitR,
                m_sweepExtreme, stopBufferPoints,
-               m_isBullish ? "BULLISH" : "BEARISH"),
+               m_isBullish ? "BULLISH" : "BEARISH",
+               triggerMode),
             now,
             stopLoss,
             takeProfit,
