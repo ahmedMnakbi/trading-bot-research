@@ -496,9 +496,9 @@ void LogStrategyTesterExecutionGateFailures(
    );
    LogStartupGateIfFalse(
       "TESTER_ALLOWED_SYMBOLS",
-      IsTrialExecutionSymbolSetStrict(config.AllowedSymbols),
+      IsStrategyTesterResearchSymbolAllowed(config.AllowedSymbols),
       GateTextOrEmpty(config.AllowedSymbols),
-      "EURUSD",
+      "EURUSD|NACUSD.c|SPCUSD.c",
       appliesTo
    );
    LogStartupGateIfFalse(

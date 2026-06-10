@@ -135,13 +135,22 @@ Current first fast-iteration candidate:
 
 Dedicated broker index tester presets were added for this strategy:
 
-- `strategy-tester-nqcusd-c-m5-ny-m15-sweep-reclaim` for `NQCUSD.c`
+- `strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim` for `NACUSD.c`
 - `strategy-tester-spcusd-c-m5-ny-m15-sweep-reclaim` for `SPCUSD.c`
 
 These are research/demo Strategy Tester presets only. Their defaults are not
 optimized index values. Before interpreting results, verify point size, tick
 value, spread, and trading hours in MT5 Symbol Specification. Next practical
-test priority: `NQCUSD.c` M5 first, then `SPCUSD.c` M5.
+test priority: `NACUSD.c` M5 first, then `SPCUSD.c` M5.
+
+The Strategy Tester execution config gate now permits only approved research
+tester symbols: `EURUSD`, `NACUSD.c`, and `SPCUSD.c`. This is tester-only;
+Trial, live, and protected gates remain unchanged. The `NACUSD.c` preset was
+fixed so the user no longer has to manually change `StrategySelection`,
+`AllowedSymbols`, `MaxSpreadPoints`, or NYM15SR index-scaled values. The
+previous `NQCUSD.c` reference was incorrect for the user's broker screenshots.
+This fix was required after MT5 returned:
+`GATE_FAIL_TESTER_ALLOWED_SYMBOLS input_value=NACUSD.c expected_value=EURUSD`.
 
 The next assistant should not expand live Trial execution, add symbols, add
 pending orders, add retries, add trailing stops, add breakeven logic, optimize

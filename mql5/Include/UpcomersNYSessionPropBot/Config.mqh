@@ -279,6 +279,13 @@ bool IsTrialExecutionSymbolSetStrict(const string allowedSymbols)
    return allowedSymbols == "EURUSD";
 }
 
+bool IsStrategyTesterResearchSymbolAllowed(const string allowedSymbols)
+{
+   return allowedSymbols == "EURUSD" ||
+          allowedSymbols == "NACUSD.c" ||
+          allowedSymbols == "SPCUSD.c";
+}
+
 bool ValidateTrialExecutionConfig(const SUpcomersConfig &config, string &reason)
 {
    if(!config.EnableTrialExecution)
@@ -416,9 +423,9 @@ bool ValidateStrategyTesterExecutionConfig(
       reason = "StrategyTesterExecutionMode requires AccountStage=MonitorOnly";
       return false;
    }
-   if(!IsTrialExecutionSymbolSetStrict(config.AllowedSymbols))
+   if(!IsStrategyTesterResearchSymbolAllowed(config.AllowedSymbols))
    {
-      reason = "StrategyTesterExecutionMode requires AllowedSymbols=EURUSD only";
+      reason = "StrategyTesterExecutionMode requires AllowedSymbols to be one approved research tester symbol: EURUSD, NACUSD.c, or SPCUSD.c";
       return false;
    }
    if(!config.StopLossRequired)
