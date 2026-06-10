@@ -719,7 +719,7 @@ public:
          return false;
       if(!LogGate(logger, "AccountStageMonitorOnly", config.AccountStage == ACCOUNT_STAGE_MONITOR_ONLY, AccountStageToString(config.AccountStage), reason))
          return false;
-      if(!LogGate(logger, "AllowedSymbols", config.AllowedSymbols == "EURUSD" && symbol == "EURUSD", "AllowedSymbols=" + config.AllowedSymbols + " symbol=" + symbol, reason))
+      if(!LogGate(logger, "AllowedSymbols", IsStrategyTesterResearchSymbolAllowed(config.AllowedSymbols) && IsStrategyTesterResearchSymbolAllowed(symbol), "AllowedSymbols=" + config.AllowedSymbols + " symbol=" + symbol, reason))
          return false;
       if(!LogGate(logger, "StopLossRequired", config.StopLossRequired, BoolToText(config.StopLossRequired), reason))
          return false;
