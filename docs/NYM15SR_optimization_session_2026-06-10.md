@@ -94,16 +94,57 @@ Generated reclaim-hold variant presets:
 - `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_reclaim_hold_entry.set`
 - `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_reclaim_hold_entry.set`
 
-Next manual MT5 Strategy Tester comparison should keep the same symbol,
-timeframe, broker, model, spread behavior, and date range as the baseline:
+## Local Tester Comparison
+
+Codex ran local command-line MT5 Strategy Tester checks after compiling the
+terminal-data EA copy with 0 errors and 1 warning. The command-line tester did
+not apply generated `.set` files through `ExpertParameters`, so local generated
+tester `.ini` files used inline `[TesterInputs]` matching MT5 tester profile
+format. The first sanity run without inline tester inputs was discarded because
+it ran the default ORB strategy instead of NYM15SR.
+
+All runs below used:
 
 - Expert: `UpcomersNYSessionPropBot`
 - Symbol: `NACUSD.c`
 - Timeframe: `M5`
-- Date range: 2026-04-01 to 2026-06-01
+- Model: real ticks (`Model=4`)
+- Deposit: `10000` USD
+- Safety inputs: `EnableTrading=false`, `EnableTrialExecution=false`,
+  `StrategyTesterExecutionMode=true`
+
+Two-month comparison, 2026-04-01 to 2026-06-01:
+
+| Variant | Entry intents | Orders sent | Gate skips | Final balance |
+| --- | ---: | ---: | ---: | ---: |
+| Strict baseline | 6 | 5 | 1 | 10003.09 |
+| Relaxed first-M15 direction | 17 | 15 | 2 | 10010.73 |
+| Reclaim-hold entry | 8 | 8 | 0 | 10000.12 |
+| Relaxed M15 plus reclaim-hold | 20 | 20 | 0 | 10010.43 |
+
+One-year comparison, 2025-06-01 to 2026-06-01:
+
+| Variant | Entry intents | Orders sent | Gate skips | Final balance |
+| --- | ---: | ---: | ---: | ---: |
+| Strict baseline | 11 | 10 | 1 | 10001.99 |
+| Relaxed first-M15 direction | 34 | 32 | 2 | 10002.36 |
+
+The relaxed first-M15 direction variant increased sample size and was the best
+of these runs, but the one-year result is only `+2.36` USD on a `10000` USD
+deposit. That is not demo-worthy evidence. The combined relaxed-M15 plus
+reclaim-hold variant increased fills in the two-month test but did not beat the
+relaxed-M15-only final balance.
+
+## Next Evidence Needed
+
+Manual MT5 Strategy Tester follow-up should export full reports so drawdown,
+profit factor, win rate, deal list, and per-trade distribution can be reviewed.
+Keep the same symbol, timeframe, broker, model, spread behavior, and date range
+when comparing:
+
 - Baseline preset:
   `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim.set`
-- Variant preset:
+- Relaxed M15 preset:
   `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_direction.set`
 - Reclaim-hold preset:
   `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_reclaim_hold_entry.set`
