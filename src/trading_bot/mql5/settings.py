@@ -34,10 +34,25 @@ TRIAL_MICRO_EXECUTION_PRESET = "trial-risk-free-eurusd-micro-execution"
 STRATEGY_TESTER_ORB_PRESET = "strategy-tester-eurusd-m5-orb"
 STRATEGY_TESTER_VWAP_PRESET = "strategy-tester-eurusd-m5-vwap"
 STRATEGY_TESTER_NYM15SR_PRESET = "strategy-tester-eurusd-m5-ny-m15-sweep-reclaim"
+STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET = (
+    "strategy-tester-nqcusd-c-m5-ny-m15-sweep-reclaim"
+)
+STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET = (
+    "strategy-tester-spcusd-c-m5-ny-m15-sweep-reclaim"
+)
 STRATEGY_TESTER_PRESETS = {
     STRATEGY_TESTER_ORB_PRESET,
     STRATEGY_TESTER_VWAP_PRESET,
     STRATEGY_TESTER_NYM15SR_PRESET,
+    STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET,
+    STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET,
+}
+STRATEGY_TESTER_PRESET_SYMBOLS = {
+    STRATEGY_TESTER_ORB_PRESET: "EURUSD",
+    STRATEGY_TESTER_VWAP_PRESET: "EURUSD",
+    STRATEGY_TESTER_NYM15SR_PRESET: "EURUSD",
+    STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET: "NQCUSD.c",
+    STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: "SPCUSD.c",
 }
 
 TRIAL_MICRO_EXECUTION_OVERRIDES: dict[str, Any] = {
@@ -100,6 +115,28 @@ STRATEGY_TESTER_PRESET_OVERRIDES: dict[str, dict[str, Any]] = {
     STRATEGY_TESTER_NYM15SR_PRESET: {
         **STRATEGY_TESTER_COMMON_OVERRIDES,
         "strategy_selection": "STRATEGY_NY_M15_SWEEP_RECLAIM",
+    },
+    STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET: {
+        **STRATEGY_TESTER_COMMON_OVERRIDES,
+        "allowed_symbols": "NQCUSD.c",
+        "strategy_selection": "STRATEGY_NY_M15_SWEEP_RECLAIM",
+        "broker_time_validation_note": (
+            "Strategy Tester research preset for NQCUSD.c; verify broker UTC offset, "
+            "point size, tick value, and spread in MT5 Symbol Specification before "
+            "interpreting index results. NYM15SR parameters are initial defaults, not "
+            "optimized index values."
+        ),
+    },
+    STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: {
+        **STRATEGY_TESTER_COMMON_OVERRIDES,
+        "allowed_symbols": "SPCUSD.c",
+        "strategy_selection": "STRATEGY_NY_M15_SWEEP_RECLAIM",
+        "broker_time_validation_note": (
+            "Strategy Tester research preset for SPCUSD.c; verify broker UTC offset, "
+            "point size, tick value, and spread in MT5 Symbol Specification before "
+            "interpreting index results. NYM15SR parameters are initial defaults, not "
+            "optimized index values."
+        ),
     },
 }
 
@@ -192,8 +229,11 @@ def validate_settings(settings: EaSettings) -> None:
             failures.append("Strategy Tester execution requires AccountProgram TrialRiskFree")
         if settings.account_stage != "MonitorOnly":
             failures.append("Strategy Tester execution requires AccountStage MonitorOnly")
-        if settings.allowed_symbols != "EURUSD":
-            failures.append("Strategy Tester execution requires AllowedSymbols=EURUSD")
+        expected_symbol = STRATEGY_TESTER_PRESET_SYMBOLS.get(settings.preset_name, "EURUSD")
+        if settings.allowed_symbols != expected_symbol:
+            failures.append(
+                f"Strategy Tester execution requires AllowedSymbols={expected_symbol}"
+            )
         if not settings.stop_loss_required:
             failures.append("Strategy Tester execution requires StopLossRequired=true")
         if settings.min_hold_seconds < 180:
@@ -345,7 +385,7 @@ def _validate_strategy_tester_preset(
         "enable_trial_execution": False,
         "strategy_tester_execution_mode": True,
         "enable_prop_challenge_mode": False,
-        "allowed_symbols": "EURUSD",
+        "allowed_symbols": STRATEGY_TESTER_PRESET_SYMBOLS[settings.preset_name],
         "strategy_timeframe": "PERIOD_M5",
         "use_spread_filter": True,
         "max_spread_points": 30,
@@ -363,6 +403,8 @@ def _validate_strategy_tester_preset(
         STRATEGY_TESTER_ORB_PRESET: "STRATEGY_OPENING_RANGE_BREAKOUT",
         STRATEGY_TESTER_VWAP_PRESET: "STRATEGY_VWAP_TREND_CONTINUATION",
         STRATEGY_TESTER_NYM15SR_PRESET: "STRATEGY_NY_M15_SWEEP_RECLAIM",
+        STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET: "STRATEGY_NY_M15_SWEEP_RECLAIM",
+        STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: "STRATEGY_NY_M15_SWEEP_RECLAIM",
     }
     expected_values["strategy_selection"] = _preset_strategy_map[settings.preset_name]
     for field_name, expected in expected_values.items():

@@ -8,7 +8,9 @@ import pytest
 from scripts import generate_ea_settings
 from trading_bot.mql5.models import ApprovalMetadata
 from trading_bot.mql5.settings import (
+    STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET,
     STRATEGY_TESTER_NYM15SR_PRESET,
+    STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET,
     TRIAL_EXECUTION_MANUAL_CONFIRMATION,
     TRIAL_MICRO_EXECUTION_PRESET,
     EaSettingsError,
@@ -321,4 +323,87 @@ def test_generate_ea_settings_script_generates_nym15sr_preset(
     assert "EnableTrading=false" in text
     assert "EnableTrialExecution=false" in text
     assert "NYM15SRNYOpenHour=9" in text
+    assert "NYM15SRMaxBarsAfterSweep=12" in text
+
+
+@pytest.mark.parametrize(
+    ("preset", "symbol"),
+    [
+        (STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET, "NQCUSD.c"),
+        (STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET, "SPCUSD.c"),
+    ],
+)
+def test_index_nym15sr_presets_validate_and_generate_set_files(
+    tmp_path: Path,
+    preset: str,
+    symbol: str,
+) -> None:
+    output = tmp_path / f"{preset}.set"
+    result = generate_settings_artifacts(
+        output_path=output,
+        preset_name=preset,
+        stage="MonitorOnly",
+    )
+
+    assert result.status == "PASS"
+    assert result.settings.allowed_symbols == symbol
+    assert result.settings.strategy_timeframe == "PERIOD_M5"
+    assert result.settings.strategy_selection == "STRATEGY_NY_M15_SWEEP_RECLAIM"
+    assert result.settings.enable_trading is False
+    assert result.settings.enable_trial_execution is False
+    assert result.settings.strategy_tester_execution_mode is True
+
+    text = output.read_text(encoding="utf-8")
+    assert f"AllowedSymbols={symbol}" in text
+    assert "StrategyTimeframe=PERIOD_M5" in text
+    assert "StrategySelection=STRATEGY_NY_M15_SWEEP_RECLAIM" in text
+    assert "EnableTrading=false" in text
+    assert "EnableTrialExecution=false" in text
+    assert "StrategyTesterExecutionMode=true" in text
+    assert "NYM15SRNYOpenHour=9" in text
+    assert "NYM15SRNYOpenMinute=30" in text
+    assert "NYM15SRNYWindowEndHour=11" in text
+    assert "NYM15SRNYWindowEndMinute=0" in text
+    assert "NYM15SREMAPeriod=50" in text
+    assert "NYM15SRMinCRTRangePoints=100.00" in text
+    assert "NYM15SRMinSweepPoints=20.00" in text
+    assert "NYM15SRStopBufferPoints=50.00" in text
+    assert "NYM15SRTakeProfitR=2.00" in text
+    assert "NYM15SRMaxBarsAfterSweep=12" in text
+    assert "not optimized index values" in text
+
+
+@pytest.mark.parametrize(
+    ("preset", "symbol"),
+    [
+        (STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET, "NQCUSD.c"),
+        (STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET, "SPCUSD.c"),
+    ],
+)
+def test_generate_ea_settings_script_generates_index_nym15sr_presets(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    preset: str,
+    symbol: str,
+) -> None:
+    output = tmp_path / f"{preset}.set"
+    code = generate_ea_settings.main(
+        [
+            "--preset",
+            preset,
+            "--output-path",
+            str(output),
+            "--json",
+        ]
+    )
+
+    assert code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["status"] == "PASS"
+    assert payload["settings"]["allowed_symbols"] == symbol
+    assert payload["settings"]["strategy_timeframe"] == "PERIOD_M5"
+    assert payload["settings"]["strategy_selection"] == "STRATEGY_NY_M15_SWEEP_RECLAIM"
+    text = output.read_text(encoding="utf-8")
+    assert f"AllowedSymbols={symbol}" in text
+    assert "StrategyTesterExecutionMode=true" in text
     assert "NYM15SRMaxBarsAfterSweep=12" in text
