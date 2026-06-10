@@ -18,6 +18,7 @@ STRATEGY_RELATIVE_PATHS = {
     "NoiseBandMomentum": INCLUDE_RELATIVE_PATH / "NoiseBandMomentum.mqh",
     "LondonNYOverlapMomentum": INCLUDE_RELATIVE_PATH / "LondonNYOverlapMomentum.mqh",
     "VolatilityExpansion": INCLUDE_RELATIVE_PATH / "VolatilityExpansion.mqh",
+    "NYM15SweepReclaim": INCLUDE_RELATIVE_PATH / "NYM15SweepReclaim.mqh",
 }
 
 

@@ -33,7 +33,12 @@ TRIAL_EXECUTION_MANUAL_CONFIRMATION = "I_ACCEPT_TRIAL_RISK_FREE_EXECUTION_ONLY"
 TRIAL_MICRO_EXECUTION_PRESET = "trial-risk-free-eurusd-micro-execution"
 STRATEGY_TESTER_ORB_PRESET = "strategy-tester-eurusd-m5-orb"
 STRATEGY_TESTER_VWAP_PRESET = "strategy-tester-eurusd-m5-vwap"
-STRATEGY_TESTER_PRESETS = {STRATEGY_TESTER_ORB_PRESET, STRATEGY_TESTER_VWAP_PRESET}
+STRATEGY_TESTER_NYM15SR_PRESET = "strategy-tester-eurusd-m5-ny-m15-sweep-reclaim"
+STRATEGY_TESTER_PRESETS = {
+    STRATEGY_TESTER_ORB_PRESET,
+    STRATEGY_TESTER_VWAP_PRESET,
+    STRATEGY_TESTER_NYM15SR_PRESET,
+}
 
 TRIAL_MICRO_EXECUTION_OVERRIDES: dict[str, Any] = {
     "enable_trading": True,
@@ -91,6 +96,10 @@ STRATEGY_TESTER_PRESET_OVERRIDES: dict[str, dict[str, Any]] = {
     STRATEGY_TESTER_VWAP_PRESET: {
         **STRATEGY_TESTER_COMMON_OVERRIDES,
         "strategy_selection": "STRATEGY_VWAP_TREND_CONTINUATION",
+    },
+    STRATEGY_TESTER_NYM15SR_PRESET: {
+        **STRATEGY_TESTER_COMMON_OVERRIDES,
+        "strategy_selection": "STRATEGY_NY_M15_SWEEP_RECLAIM",
     },
 }
 
@@ -350,12 +359,12 @@ def _validate_strategy_tester_preset(
         "max_open_positions_per_symbol": 1,
         "log_throttle_skips": False,
     }
-    expected_strategy = (
-        "STRATEGY_OPENING_RANGE_BREAKOUT"
-        if settings.preset_name == STRATEGY_TESTER_ORB_PRESET
-        else "STRATEGY_VWAP_TREND_CONTINUATION"
-    )
-    expected_values["strategy_selection"] = expected_strategy
+    _preset_strategy_map = {
+        STRATEGY_TESTER_ORB_PRESET: "STRATEGY_OPENING_RANGE_BREAKOUT",
+        STRATEGY_TESTER_VWAP_PRESET: "STRATEGY_VWAP_TREND_CONTINUATION",
+        STRATEGY_TESTER_NYM15SR_PRESET: "STRATEGY_NY_M15_SWEEP_RECLAIM",
+    }
+    expected_values["strategy_selection"] = _preset_strategy_map[settings.preset_name]
     for field_name, expected in expected_values.items():
         actual = getattr(settings, field_name)
         if actual != expected:
@@ -459,6 +468,16 @@ def render_set_file(settings: EaSettings) -> str:
         "OpeningRangeTakeProfitR": f"{settings.opening_range_take_profit_r:.2f}",
         "VWAPLookbackBars": str(settings.vwap_lookback_bars),
         "VWAPStopBufferPoints": f"{settings.vwap_stop_buffer_points:.2f}",
+        "NYM15SRNYOpenHour": str(settings.nym15sr_ny_open_hour),
+        "NYM15SRNYOpenMinute": str(settings.nym15sr_ny_open_minute),
+        "NYM15SRNYWindowEndHour": str(settings.nym15sr_ny_window_end_hour),
+        "NYM15SRNYWindowEndMinute": str(settings.nym15sr_ny_window_end_minute),
+        "NYM15SREMAPeriod": str(settings.nym15sr_ema_period),
+        "NYM15SRMinCRTRangePoints": f"{settings.nym15sr_min_crt_range_points:.2f}",
+        "NYM15SRMinSweepPoints": f"{settings.nym15sr_min_sweep_points:.2f}",
+        "NYM15SRStopBufferPoints": f"{settings.nym15sr_stop_buffer_points:.2f}",
+        "NYM15SRTakeProfitR": f"{settings.nym15sr_take_profit_r:.2f}",
+        "NYM15SRMaxBarsAfterSweep": str(settings.nym15sr_max_bars_after_sweep),
         "StrategySignalCooldownSeconds": str(settings.strategy_signal_cooldown_seconds),
         "MaxSignalsPerStrategyPerSession": str(settings.max_signals_per_strategy_per_session),
         "BrokerTimeMode": settings.broker_time_mode,

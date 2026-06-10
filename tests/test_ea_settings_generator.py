@@ -8,6 +8,7 @@ import pytest
 from scripts import generate_ea_settings
 from trading_bot.mql5.models import ApprovalMetadata
 from trading_bot.mql5.settings import (
+    STRATEGY_TESTER_NYM15SR_PRESET,
     TRIAL_EXECUTION_MANUAL_CONFIRMATION,
     TRIAL_MICRO_EXECUTION_PRESET,
     EaSettingsError,
@@ -232,3 +233,92 @@ def test_generate_ea_settings_script_generates_micro_preset_with_scan_id(
     assert payload["status"] == "PASS"
     assert payload["settings"]["enable_trial_execution"] is True
     assert "EnableTrialExecution=true" in output.read_text(encoding="utf-8")
+
+
+def test_nym15sr_preset_validates_and_generates_set_file(tmp_path: Path) -> None:
+    output = tmp_path / "nym15sr.set"
+    result = generate_settings_artifacts(
+        output_path=output,
+        preset_name=STRATEGY_TESTER_NYM15SR_PRESET,
+        stage="MonitorOnly",
+    )
+
+    assert result.status == "PASS"
+    text = output.read_text(encoding="utf-8")
+    assert "StrategySelection=STRATEGY_NY_M15_SWEEP_RECLAIM" in text
+    assert "EnableTrading=false" in text
+    assert "EnableTrialExecution=false" in text
+    assert "StrategyTesterExecutionMode=true" in text
+    assert "NYM15SRNYOpenHour=9" in text
+    assert "NYM15SRNYOpenMinute=30" in text
+    assert "NYM15SRNYWindowEndHour=11" in text
+    assert "NYM15SRNYWindowEndMinute=0" in text
+    assert "NYM15SREMAPeriod=50" in text
+    assert "NYM15SRMinCRTRangePoints=100.00" in text
+    assert "NYM15SRMinSweepPoints=20.00" in text
+    assert "NYM15SRStopBufferPoints=50.00" in text
+    assert "NYM15SRTakeProfitR=2.00" in text
+    assert "NYM15SRMaxBarsAfterSweep=12" in text
+
+
+def test_nym15sr_preset_uses_correct_strategy_selection() -> None:
+    settings = build_settings(
+        preset_name=STRATEGY_TESTER_NYM15SR_PRESET,
+        stage="MonitorOnly",
+    )
+    assert settings.strategy_selection == "STRATEGY_NY_M15_SWEEP_RECLAIM"
+
+
+def test_nym15sr_preset_no_live_or_trial_execution() -> None:
+    settings = build_settings(
+        preset_name=STRATEGY_TESTER_NYM15SR_PRESET,
+        stage="MonitorOnly",
+    )
+    assert settings.enable_trading is False
+    assert settings.enable_trial_execution is False
+    assert settings.strategy_tester_execution_mode is True
+    assert settings.enable_prop_challenge_mode is False
+
+
+def test_nym15sr_preset_default_fields_match_spec() -> None:
+    settings = build_settings(
+        preset_name=STRATEGY_TESTER_NYM15SR_PRESET,
+        stage="MonitorOnly",
+    )
+    assert settings.nym15sr_ny_open_hour == 9
+    assert settings.nym15sr_ny_open_minute == 30
+    assert settings.nym15sr_ny_window_end_hour == 11
+    assert settings.nym15sr_ny_window_end_minute == 0
+    assert settings.nym15sr_ema_period == 50
+    assert settings.nym15sr_min_crt_range_points == 100.0
+    assert settings.nym15sr_min_sweep_points == 20.0
+    assert settings.nym15sr_stop_buffer_points == 50.0
+    assert settings.nym15sr_take_profit_r == 2.0
+    assert settings.nym15sr_max_bars_after_sweep == 12
+
+
+def test_generate_ea_settings_script_generates_nym15sr_preset(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    output = tmp_path / "nym15sr.set"
+    code = generate_ea_settings.main(
+        [
+            "--preset",
+            STRATEGY_TESTER_NYM15SR_PRESET,
+            "--output-path",
+            str(output),
+            "--json",
+        ]
+    )
+
+    assert code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["status"] == "PASS"
+    assert payload["settings"]["strategy_selection"] == "STRATEGY_NY_M15_SWEEP_RECLAIM"
+    text = output.read_text(encoding="utf-8")
+    assert "StrategySelection=STRATEGY_NY_M15_SWEEP_RECLAIM" in text
+    assert "EnableTrading=false" in text
+    assert "EnableTrialExecution=false" in text
+    assert "NYM15SRNYOpenHour=9" in text
+    assert "NYM15SRMaxBarsAfterSweep=12" in text

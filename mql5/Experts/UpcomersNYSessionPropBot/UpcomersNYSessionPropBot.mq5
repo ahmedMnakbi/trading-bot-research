@@ -15,6 +15,7 @@
 #include "..\\..\\Include\\UpcomersNYSessionPropBot\\NoiseBandMomentum.mqh"
 #include "..\\..\\Include\\UpcomersNYSessionPropBot\\LondonNYOverlapMomentum.mqh"
 #include "..\\..\\Include\\UpcomersNYSessionPropBot\\VolatilityExpansion.mqh"
+#include "..\\..\\Include\\UpcomersNYSessionPropBot\\NYM15SweepReclaim.mqh"
 #include "..\\..\\Include\\UpcomersNYSessionPropBot\\TradeManager.mqh"
 #include "..\\..\\Include\\UpcomersNYSessionPropBot\\TrialExecution.mqh"
 #include "..\\..\\Include\\UpcomersNYSessionPropBot\\TesterExecution.mqh"
@@ -68,6 +69,16 @@ input double OpeningRangeMinRangePoints = 10.0;
 input double OpeningRangeTakeProfitR = 2.0;
 input int VWAPLookbackBars = 30;
 input double VWAPStopBufferPoints = 20.0;
+input int NYM15SRNYOpenHour = 9;
+input int NYM15SRNYOpenMinute = 30;
+input int NYM15SRNYWindowEndHour = 11;
+input int NYM15SRNYWindowEndMinute = 0;
+input int NYM15SREMAPeriod = 50;
+input double NYM15SRMinCRTRangePoints = 100.0;
+input double NYM15SRMinSweepPoints = 20.0;
+input double NYM15SRStopBufferPoints = 50.0;
+input double NYM15SRTakeProfitR = 2.0;
+input int NYM15SRMaxBarsAfterSweep = 12;
 input int StrategySignalCooldownSeconds = 900;
 input int MaxSignalsPerStrategyPerSession = 1;
 input ENUM_UPCOMERS_BROKER_TIME_MODE BrokerTimeMode = BROKER_TIME_MANUAL_UTC_OFFSET;
@@ -100,6 +111,7 @@ CVWAPTrendContinuationStrategy g_vwapTrend;
 CNoiseBandMomentumStrategy g_noiseBand;
 CLondonNYOverlapMomentumStrategy g_overlapMomentum;
 CVolatilityExpansionStrategy g_volatilityExpansion;
+CNYm15SweepReclaimStrategy g_nyM15SweepReclaim;
 
 void LoadInputConfiguration()
 {
@@ -813,6 +825,27 @@ void EvaluateSelectedStrategy(SStrategyDecision &decision)
             g_sessionManager,
             decision,
             MaxSignalsPerStrategyPerSession,
+            MinHoldSeconds
+         );
+         return;
+      case STRATEGY_NY_M15_SWEEP_RECLAIM:
+         g_nyM15SweepReclaim.Evaluate(
+            _Symbol,
+            StrategyTimeframe,
+            now,
+            g_sessionManager,
+            decision,
+            NYM15SRNYOpenHour,
+            NYM15SRNYOpenMinute,
+            NYM15SRNYWindowEndHour,
+            NYM15SRNYWindowEndMinute,
+            NYM15SREMAPeriod,
+            NYM15SRMinCRTRangePoints,
+            NYM15SRMinSweepPoints,
+            NYM15SRStopBufferPoints,
+            NYM15SRTakeProfitR,
+            NYM15SRMaxBarsAfterSweep,
+            MaxTradesPerDay,
             MinHoldSeconds
          );
          return;
