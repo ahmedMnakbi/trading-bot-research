@@ -9,6 +9,7 @@ import pytest
 from scripts.parse_strategy_tester_report import parse_strategy_tester_report
 from trading_bot.mql5.models import ApprovalMetadata
 from trading_bot.mql5.settings import (
+    APPROVED_STRATEGY_TESTER_SYMBOLS,
     STRATEGY_TESTER_ORB_PRESET,
     STRATEGY_TESTER_VWAP_PRESET,
     TRIAL_MICRO_EXECUTION_PRESET,
@@ -81,9 +82,87 @@ def test_live_trial_execution_gates_remain_unchanged() -> None:
     assert settings.strategy_tester_execution_mode is False
     assert "Trial execution requires AccountProgram=TrialRiskFree" in config_text
     assert "Trial execution requires AccountStage=Trial" in config_text
+    assert "Trial execution requires AllowedSymbols=EURUSD only" in config_text
     assert "I_ACCEPT_TRIAL_RISK_FREE_EXECUTION_ONLY" in config_text
     assert "OrderSend(request, result)" in trial_text
     assert trial_text.count("OrderSend(request, result)") == 1
+
+
+def test_strategy_tester_symbol_gate_uses_strict_research_allowlist() -> None:
+    config_text = CONFIG.read_text(encoding="utf-8")
+    ea_text = _ea_text()
+
+    assert "IsStrategyTesterResearchSymbolAllowed" in config_text
+    assert 'allowedSymbols == "EURUSD"' in config_text
+    assert 'allowedSymbols == "NACUSD.c"' in config_text
+    assert 'allowedSymbols == "SPCUSD.c"' in config_text
+    assert "AllowedSymbols to be one approved research tester symbol" in config_text
+    assert "EURUSD, NACUSD.c, or SPCUSD.c" in config_text
+    assert "TESTER_ALLOWED_SYMBOLS" in ea_text
+    assert "EURUSD|NACUSD.c|SPCUSD.c" in ea_text
+
+
+@pytest.mark.parametrize("symbol", ["EURUSD", "NACUSD.c", "SPCUSD.c"])
+def test_python_strategy_tester_validation_accepts_approved_symbols(symbol: str) -> None:
+    settings = build_settings(
+        stage="MonitorOnly",
+        overrides={
+            "strategy_tester_execution_mode": True,
+            "allowed_symbols": symbol,
+            "strategy_timeframe": "PERIOD_M5",
+        },
+    )
+
+    assert settings.strategy_tester_execution_mode is True
+    assert settings.allowed_symbols == symbol
+    assert symbol in APPROVED_STRATEGY_TESTER_SYMBOLS
+
+
+def test_python_strategy_tester_validation_rejects_unapproved_symbol() -> None:
+    with pytest.raises(EaSettingsError, match="approved research tester symbol"):
+        build_settings(
+            stage="MonitorOnly",
+            overrides={
+                "strategy_tester_execution_mode": True,
+                "allowed_symbols": "XAUUSD",
+                "strategy_timeframe": "PERIOD_M5",
+            },
+        )
+
+
+def test_python_strategy_tester_validation_still_requires_disabled_execution_flags() -> None:
+    with pytest.raises(EaSettingsError, match="EnableTrading=false"):
+        build_settings(
+            stage="MonitorOnly",
+            overrides={
+                "strategy_tester_execution_mode": True,
+                "enable_trading": True,
+                "allowed_symbols": "NACUSD.c",
+                "strategy_timeframe": "PERIOD_M5",
+            },
+        )
+    with pytest.raises(EaSettingsError, match="separate from EnableTrialExecution"):
+        build_settings(
+            stage="MonitorOnly",
+            overrides={
+                "strategy_tester_execution_mode": True,
+                "enable_trial_execution": True,
+                "allowed_symbols": "NACUSD.c",
+                "strategy_timeframe": "PERIOD_M5",
+            },
+        )
+
+
+def test_python_trial_validation_still_rejects_index_symbols() -> None:
+    with pytest.raises(EaSettingsError, match="AllowedSymbols=EURUSD"):
+        build_settings(
+            preset_name=TRIAL_MICRO_EXECUTION_PRESET,
+            approval_metadata=ApprovalMetadata(source_scan_pass_id="scan-pass"),
+            overrides={
+                "allowed_symbols": "NACUSD.c",
+                "broker_time_validation_note": "broker server UTC offset manually verified",
+            },
+        )
 
 
 def test_tester_execution_order_call_is_isolated() -> None:

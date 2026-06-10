@@ -8,7 +8,7 @@ import pytest
 from scripts import generate_ea_settings
 from trading_bot.mql5.models import ApprovalMetadata
 from trading_bot.mql5.settings import (
-    STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET,
+    STRATEGY_TESTER_NYM15SR_NACUSD_PRESET,
     STRATEGY_TESTER_NYM15SR_PRESET,
     STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET,
     TRIAL_EXECUTION_MANUAL_CONFIRMATION,
@@ -329,7 +329,7 @@ def test_generate_ea_settings_script_generates_nym15sr_preset(
 @pytest.mark.parametrize(
     ("preset", "symbol"),
     [
-        (STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET, "NQCUSD.c"),
+        (STRATEGY_TESTER_NYM15SR_NACUSD_PRESET, "NACUSD.c"),
         (STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET, "SPCUSD.c"),
     ],
 )
@@ -365,9 +365,23 @@ def test_index_nym15sr_presets_validate_and_generate_set_files(
     assert "NYM15SRNYWindowEndHour=11" in text
     assert "NYM15SRNYWindowEndMinute=0" in text
     assert "NYM15SREMAPeriod=50" in text
-    assert "NYM15SRMinCRTRangePoints=100.00" in text
-    assert "NYM15SRMinSweepPoints=20.00" in text
-    assert "NYM15SRStopBufferPoints=50.00" in text
+    expected_values = (
+        {
+            "MaxSpreadPoints": "1000",
+            "NYM15SRMinCRTRangePoints": "3000.00",
+            "NYM15SRMinSweepPoints": "500.00",
+            "NYM15SRStopBufferPoints": "500.00",
+        }
+        if symbol == "NACUSD.c"
+        else {
+            "MaxSpreadPoints": "500",
+            "NYM15SRMinCRTRangePoints": "1000.00",
+            "NYM15SRMinSweepPoints": "150.00",
+            "NYM15SRStopBufferPoints": "250.00",
+        }
+    )
+    for key, value in expected_values.items():
+        assert f"{key}={value}" in text
     assert "NYM15SRTakeProfitR=2.00" in text
     assert "NYM15SRMaxBarsAfterSweep=12" in text
     assert "not optimized index values" in text
@@ -376,7 +390,7 @@ def test_index_nym15sr_presets_validate_and_generate_set_files(
 @pytest.mark.parametrize(
     ("preset", "symbol"),
     [
-        (STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET, "NQCUSD.c"),
+        (STRATEGY_TESTER_NYM15SR_NACUSD_PRESET, "NACUSD.c"),
         (STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET, "SPCUSD.c"),
     ],
 )
@@ -407,3 +421,33 @@ def test_generate_ea_settings_script_generates_index_nym15sr_presets(
     assert f"AllowedSymbols={symbol}" in text
     assert "StrategyTesterExecutionMode=true" in text
     assert "NYM15SRMaxBarsAfterSweep=12" in text
+
+
+def test_nacusd_nym15sr_preset_generates_ready_to_run_values(tmp_path: Path) -> None:
+    output = tmp_path / "nacusd.set"
+    result = generate_settings_artifacts(
+        output_path=output,
+        preset_name=STRATEGY_TESTER_NYM15SR_NACUSD_PRESET,
+        stage="MonitorOnly",
+    )
+
+    assert result.status == "PASS"
+    text = output.read_text(encoding="utf-8")
+    assert "AllowedSymbols=NACUSD.c" in text
+    assert "StrategySelection=STRATEGY_NY_M15_SWEEP_RECLAIM" in text
+    assert "EnableTrading=false" in text
+    assert "EnableTrialExecution=false" in text
+    assert "StrategyTesterExecutionMode=true" in text
+    assert "MaxSpreadPoints=1000" in text
+    assert "NYM15SRNYOpenHour=9" in text
+    assert "NYM15SRNYOpenMinute=30" in text
+    assert "NYM15SRNYWindowEndHour=11" in text
+    assert "NYM15SRNYWindowEndMinute=0" in text
+    assert "NYM15SREMAPeriod=50" in text
+    assert "NYM15SRMinCRTRangePoints=3000.00" in text
+    assert "NYM15SRMinSweepPoints=500.00" in text
+    assert "NYM15SRStopBufferPoints=500.00" in text
+    assert "NYM15SRTakeProfitR=2.00" in text
+    assert "NYM15SRMaxBarsAfterSweep=12" in text
+    assert "NACUSD.c" in text
+    assert "NQCUSD.c" not in text

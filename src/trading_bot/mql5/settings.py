@@ -34,25 +34,33 @@ TRIAL_MICRO_EXECUTION_PRESET = "trial-risk-free-eurusd-micro-execution"
 STRATEGY_TESTER_ORB_PRESET = "strategy-tester-eurusd-m5-orb"
 STRATEGY_TESTER_VWAP_PRESET = "strategy-tester-eurusd-m5-vwap"
 STRATEGY_TESTER_NYM15SR_PRESET = "strategy-tester-eurusd-m5-ny-m15-sweep-reclaim"
-STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET = (
-    "strategy-tester-nqcusd-c-m5-ny-m15-sweep-reclaim"
+STRATEGY_TESTER_NYM15SR_NACUSD_PRESET = (
+    "strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim"
 )
 STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET = (
     "strategy-tester-spcusd-c-m5-ny-m15-sweep-reclaim"
 )
+APPROVED_STRATEGY_TESTER_SYMBOLS = {"EURUSD", "NACUSD.c", "SPCUSD.c"}
 STRATEGY_TESTER_PRESETS = {
     STRATEGY_TESTER_ORB_PRESET,
     STRATEGY_TESTER_VWAP_PRESET,
     STRATEGY_TESTER_NYM15SR_PRESET,
-    STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET,
+    STRATEGY_TESTER_NYM15SR_NACUSD_PRESET,
     STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET,
 }
 STRATEGY_TESTER_PRESET_SYMBOLS = {
     STRATEGY_TESTER_ORB_PRESET: "EURUSD",
     STRATEGY_TESTER_VWAP_PRESET: "EURUSD",
     STRATEGY_TESTER_NYM15SR_PRESET: "EURUSD",
-    STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET: "NQCUSD.c",
+    STRATEGY_TESTER_NYM15SR_NACUSD_PRESET: "NACUSD.c",
     STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: "SPCUSD.c",
+}
+STRATEGY_TESTER_PRESET_MAX_SPREAD_POINTS = {
+    STRATEGY_TESTER_ORB_PRESET: 30,
+    STRATEGY_TESTER_VWAP_PRESET: 30,
+    STRATEGY_TESTER_NYM15SR_PRESET: 30,
+    STRATEGY_TESTER_NYM15SR_NACUSD_PRESET: 1000,
+    STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: 500,
 }
 
 TRIAL_MICRO_EXECUTION_OVERRIDES: dict[str, Any] = {
@@ -116,12 +124,16 @@ STRATEGY_TESTER_PRESET_OVERRIDES: dict[str, dict[str, Any]] = {
         **STRATEGY_TESTER_COMMON_OVERRIDES,
         "strategy_selection": "STRATEGY_NY_M15_SWEEP_RECLAIM",
     },
-    STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET: {
+    STRATEGY_TESTER_NYM15SR_NACUSD_PRESET: {
         **STRATEGY_TESTER_COMMON_OVERRIDES,
-        "allowed_symbols": "NQCUSD.c",
+        "allowed_symbols": "NACUSD.c",
         "strategy_selection": "STRATEGY_NY_M15_SWEEP_RECLAIM",
+        "max_spread_points": 1000,
+        "nym15sr_min_crt_range_points": 3000.0,
+        "nym15sr_min_sweep_points": 500.0,
+        "nym15sr_stop_buffer_points": 500.0,
         "broker_time_validation_note": (
-            "Strategy Tester research preset for NQCUSD.c; verify broker UTC offset, "
+            "Strategy Tester research preset for NACUSD.c; verify broker UTC offset, "
             "point size, tick value, and spread in MT5 Symbol Specification before "
             "interpreting index results. NYM15SR parameters are initial defaults, not "
             "optimized index values."
@@ -131,6 +143,10 @@ STRATEGY_TESTER_PRESET_OVERRIDES: dict[str, dict[str, Any]] = {
         **STRATEGY_TESTER_COMMON_OVERRIDES,
         "allowed_symbols": "SPCUSD.c",
         "strategy_selection": "STRATEGY_NY_M15_SWEEP_RECLAIM",
+        "max_spread_points": 500,
+        "nym15sr_min_crt_range_points": 1000.0,
+        "nym15sr_min_sweep_points": 150.0,
+        "nym15sr_stop_buffer_points": 250.0,
         "broker_time_validation_note": (
             "Strategy Tester research preset for SPCUSD.c; verify broker UTC offset, "
             "point size, tick value, and spread in MT5 Symbol Specification before "
@@ -229,10 +245,10 @@ def validate_settings(settings: EaSettings) -> None:
             failures.append("Strategy Tester execution requires AccountProgram TrialRiskFree")
         if settings.account_stage != "MonitorOnly":
             failures.append("Strategy Tester execution requires AccountStage MonitorOnly")
-        expected_symbol = STRATEGY_TESTER_PRESET_SYMBOLS.get(settings.preset_name, "EURUSD")
-        if settings.allowed_symbols != expected_symbol:
+        if settings.allowed_symbols not in APPROVED_STRATEGY_TESTER_SYMBOLS:
             failures.append(
-                f"Strategy Tester execution requires AllowedSymbols={expected_symbol}"
+                "Strategy Tester execution requires AllowedSymbols to be one approved "
+                "research tester symbol: EURUSD, NACUSD.c, or SPCUSD.c"
             )
         if not settings.stop_loss_required:
             failures.append("Strategy Tester execution requires StopLossRequired=true")
@@ -388,7 +404,9 @@ def _validate_strategy_tester_preset(
         "allowed_symbols": STRATEGY_TESTER_PRESET_SYMBOLS[settings.preset_name],
         "strategy_timeframe": "PERIOD_M5",
         "use_spread_filter": True,
-        "max_spread_points": 30,
+        "max_spread_points": STRATEGY_TESTER_PRESET_MAX_SPREAD_POINTS[
+            settings.preset_name
+        ],
         "spread_unknown_blocks_trading": True,
         "min_hold_seconds": 180,
         "stop_loss_required": True,
@@ -403,7 +421,7 @@ def _validate_strategy_tester_preset(
         STRATEGY_TESTER_ORB_PRESET: "STRATEGY_OPENING_RANGE_BREAKOUT",
         STRATEGY_TESTER_VWAP_PRESET: "STRATEGY_VWAP_TREND_CONTINUATION",
         STRATEGY_TESTER_NYM15SR_PRESET: "STRATEGY_NY_M15_SWEEP_RECLAIM",
-        STRATEGY_TESTER_NYM15SR_NQCUSD_PRESET: "STRATEGY_NY_M15_SWEEP_RECLAIM",
+        STRATEGY_TESTER_NYM15SR_NACUSD_PRESET: "STRATEGY_NY_M15_SWEEP_RECLAIM",
         STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: "STRATEGY_NY_M15_SWEEP_RECLAIM",
     }
     expected_values["strategy_selection"] = _preset_strategy_map[settings.preset_name]
