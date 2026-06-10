@@ -109,6 +109,16 @@ class EaSettings:
     opening_range_take_profit_r: float = 2.0
     vwap_lookback_bars: int = 30
     vwap_stop_buffer_points: float = 20.0
+    nym15sr_ny_open_hour: int = 9
+    nym15sr_ny_open_minute: int = 30
+    nym15sr_ny_window_end_hour: int = 11
+    nym15sr_ny_window_end_minute: int = 0
+    nym15sr_ema_period: int = 50
+    nym15sr_min_crt_range_points: float = 100.0
+    nym15sr_min_sweep_points: float = 20.0
+    nym15sr_stop_buffer_points: float = 50.0
+    nym15sr_take_profit_r: float = 2.0
+    nym15sr_max_bars_after_sweep: int = 12
     strategy_signal_cooldown_seconds: int = 900
     max_signals_per_strategy_per_session: int = 1
     broker_time_mode: str = "BROKER_TIME_MANUAL_UTC_OFFSET"
