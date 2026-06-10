@@ -79,6 +79,12 @@ Phase 14 contains no protected account trading, prop credentials, MT5 login, Pyt
   variant for NACUSD.c comparison. After reclaim, entry can trigger on a later
   closed M5 candle that remains on the reclaimed side of the stored M15 level.
   The reclaim candle itself still cannot be the entry candle.
+- `NYM15SRUseM15BodyLevels=true`: research-only Strategy Tester variant for
+  NACUSD.c comparison. The first M15 candle body high/low becomes the sweep and
+  reclaim reference box instead of the full wick high/low.
+- `NYM15SRLongOnly=true`: research-only Strategy Tester variant for NACUSD.c
+  comparison. Bearish H1 setups are skipped so only bullish NYM15SR entries are
+  considered.
 
 The relaxed variants are not optimized, not approved for Trial/live/protected
 execution, and should be compared against the strict baseline over the same

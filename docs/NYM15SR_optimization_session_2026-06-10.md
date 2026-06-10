@@ -94,6 +94,11 @@ Generated reclaim-hold variant presets:
 - `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_reclaim_hold_entry.set`
 - `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_reclaim_hold_entry.set`
 
+Additional rejected or exploratory presets:
+
+- `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_body_levels.set`
+- `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_long_only.set`
+
 ## Local Tester Comparison
 
 Codex ran local command-line MT5 Strategy Tester checks after compiling the
@@ -135,6 +140,20 @@ deposit. That is not demo-worthy evidence. The combined relaxed-M15 plus
 reclaim-hold variant increased fills in the two-month test but did not beat the
 relaxed-M15-only final balance.
 
+The exploratory body-level variant did not help. It finished at `10000.74` over
+two months and `9992.30` over one year after the wick-protected stop refinement,
+so it is a rejected direction.
+
+The long-only variant is the current best candidate so far:
+
+| Variant | Entry intents | Orders sent | Gate skips | Final balance |
+| --- | ---: | ---: | ---: | ---: |
+| Relaxed M15 long-only | 16 | 14 | 2 | 10011.61 |
+| Relaxed M15 long-only, 1 year | 22 | 20 | 2 | 10008.35 |
+
+This is materially better than the earlier relaxed-M15-only family, but it still
+does not yet justify a demo-worthy claim.
+
 ## Next Evidence Needed
 
 Manual MT5 Strategy Tester follow-up should export full reports so drawdown,
@@ -150,6 +169,10 @@ when comparing:
   `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_reclaim_hold_entry.set`
 - Combined relaxed M15 plus reclaim-hold preset:
   `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_reclaim_hold_entry.set`
+- Relaxed M15 long-only preset:
+  `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_long_only.set`
+- Relaxed M15 body-level preset:
+  `data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_body_levels.set`
 
 Record results with `docs/manual_backtest_result_template.md`. Compare at least
 entry intents, tester orders attempted, trades, net profit, drawdown, profit

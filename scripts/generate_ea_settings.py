@@ -12,6 +12,8 @@ from trading_bot.mql5.models import ApprovalMetadata
 from trading_bot.mql5.settings import (
     STRATEGY_TESTER_NYM15SR_NACUSD_PRESET,
     STRATEGY_TESTER_NYM15SR_NACUSD_RECLAIM_HOLD_PRESET,
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET,
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET,
     STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET,
     STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET,
     STRATEGY_TESTER_NYM15SR_PRESET,
@@ -50,6 +52,12 @@ STRATEGY_TESTER_OUTPUTS = {
     STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET: Path(
         "data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_reclaim_hold_entry.set"
     ),
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET: Path(
+        "data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_body_levels.set"
+    ),
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET: Path(
+        "data/processed/ea_settings/strategy_tester_nacusd_c_m5_ny_m15_sweep_reclaim_relaxed_m15_long_only.set"
+    ),
     STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: Path(
         "data/processed/ea_settings/strategy_tester_spcusd_c_m5_ny_m15_sweep_reclaim.set"
     ),
@@ -71,6 +79,8 @@ def build_parser() -> argparse.ArgumentParser:
             STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET,
             STRATEGY_TESTER_NYM15SR_NACUSD_RECLAIM_HOLD_PRESET,
             STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET,
+            STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET,
+            STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET,
             STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET,
         ],
         help="Known safe preset to generate.",

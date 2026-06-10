@@ -46,6 +46,12 @@ STRATEGY_TESTER_NYM15SR_NACUSD_RECLAIM_HOLD_PRESET = (
 STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET = (
     "strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim-relaxed-m15-reclaim-hold-entry"
 )
+STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET = (
+    "strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim-relaxed-m15-body-levels"
+)
+STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET = (
+    "strategy-tester-nacusd-c-m5-ny-m15-sweep-reclaim-relaxed-m15-long-only"
+)
 STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET = (
     "strategy-tester-spcusd-c-m5-ny-m15-sweep-reclaim"
 )
@@ -58,6 +64,8 @@ STRATEGY_TESTER_PRESETS = {
     STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET,
     STRATEGY_TESTER_NYM15SR_NACUSD_RECLAIM_HOLD_PRESET,
     STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET,
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET,
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET,
     STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET,
 }
 STRATEGY_TESTER_PRESET_SYMBOLS = {
@@ -68,6 +76,8 @@ STRATEGY_TESTER_PRESET_SYMBOLS = {
     STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET: "NACUSD.c",
     STRATEGY_TESTER_NYM15SR_NACUSD_RECLAIM_HOLD_PRESET: "NACUSD.c",
     STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET: "NACUSD.c",
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET: "NACUSD.c",
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET: "NACUSD.c",
     STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: "SPCUSD.c",
 }
 STRATEGY_TESTER_PRESET_MAX_SPREAD_POINTS = {
@@ -78,6 +88,8 @@ STRATEGY_TESTER_PRESET_MAX_SPREAD_POINTS = {
     STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET: 1000,
     STRATEGY_TESTER_NYM15SR_NACUSD_RECLAIM_HOLD_PRESET: 1000,
     STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET: 1000,
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET: 1000,
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET: 1000,
     STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: 500,
 }
 
@@ -213,6 +225,45 @@ STRATEGY_TESTER_PRESET_OVERRIDES: dict[str, dict[str, Any]] = {
             "spread in MT5 Symbol Specification before interpreting index "
             "results. NYM15SR parameters are research defaults, not optimized "
             "index values."
+        ),
+    },
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET: {
+        **STRATEGY_TESTER_COMMON_OVERRIDES,
+        "allowed_symbols": "NACUSD.c",
+        "strategy_selection": "STRATEGY_NY_M15_SWEEP_RECLAIM",
+        "max_spread_points": 1000,
+        "nym15sr_min_crt_range_points": 3000.0,
+        "nym15sr_min_sweep_points": 500.0,
+        "nym15sr_stop_buffer_points": 500.0,
+        "nym15sr_require_m15_direction_agreement": False,
+        "nym15sr_use_m15_body_levels": True,
+        "broker_time_validation_note": (
+            "Strategy Tester research variant for NACUSD.c; relaxes the first "
+            "M15 candle direction agreement filter and uses the first M15 "
+            "candle body high/low as the sweep/reclaim levels while preserving "
+            "H1 EMA trend direction. Verify broker UTC offset, point size, "
+            "tick value, and spread in MT5 Symbol Specification before "
+            "interpreting index results. NYM15SR parameters are research "
+            "defaults, not optimized index values."
+        ),
+    },
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET: {
+        **STRATEGY_TESTER_COMMON_OVERRIDES,
+        "allowed_symbols": "NACUSD.c",
+        "strategy_selection": "STRATEGY_NY_M15_SWEEP_RECLAIM",
+        "max_spread_points": 1000,
+        "nym15sr_min_crt_range_points": 3000.0,
+        "nym15sr_min_sweep_points": 500.0,
+        "nym15sr_stop_buffer_points": 500.0,
+        "nym15sr_require_m15_direction_agreement": False,
+        "nym15sr_long_only": True,
+        "broker_time_validation_note": (
+            "Strategy Tester research variant for NACUSD.c; relaxes the first "
+            "M15 candle direction agreement filter and blocks bearish H1 setups "
+            "so only long NYM15SR entries are considered. Verify broker UTC "
+            "offset, point size, tick value, and spread in MT5 Symbol "
+            "Specification before interpreting index results. NYM15SR "
+            "parameters are research defaults, not optimized index values."
         ),
     },
     STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: {
@@ -507,6 +558,12 @@ def _validate_strategy_tester_preset(
         STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET: (
             "STRATEGY_NY_M15_SWEEP_RECLAIM"
         ),
+        STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET: (
+            "STRATEGY_NY_M15_SWEEP_RECLAIM"
+        ),
+        STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET: (
+            "STRATEGY_NY_M15_SWEEP_RECLAIM"
+        ),
         STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET: "STRATEGY_NY_M15_SWEEP_RECLAIM",
     }
     expected_values["strategy_selection"] = _preset_strategy_map[settings.preset_name]
@@ -629,6 +686,8 @@ def render_set_file(settings: EaSettings) -> str:
         "NYM15SRRequireReclaimBreakoutEntry": _bool(
             settings.nym15sr_require_reclaim_breakout_entry
         ),
+        "NYM15SRUseM15BodyLevels": _bool(settings.nym15sr_use_m15_body_levels),
+        "NYM15SRLongOnly": _bool(settings.nym15sr_long_only),
         "StrategySignalCooldownSeconds": str(settings.strategy_signal_cooldown_seconds),
         "MaxSignalsPerStrategyPerSession": str(settings.max_signals_per_strategy_per_session),
         "BrokerTimeMode": settings.broker_time_mode,

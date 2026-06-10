@@ -121,6 +121,8 @@ class EaSettings:
     nym15sr_max_bars_after_sweep: int = 12
     nym15sr_require_m15_direction_agreement: bool = True
     nym15sr_require_reclaim_breakout_entry: bool = True
+    nym15sr_use_m15_body_levels: bool = False
+    nym15sr_long_only: bool = False
     strategy_signal_cooldown_seconds: int = 900
     max_signals_per_strategy_per_session: int = 1
     broker_time_mode: str = "BROKER_TIME_MANUAL_UTC_OFFSET"

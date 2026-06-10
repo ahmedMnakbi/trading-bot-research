@@ -10,6 +10,8 @@ from trading_bot.mql5.models import ApprovalMetadata
 from trading_bot.mql5.settings import (
     STRATEGY_TESTER_NYM15SR_NACUSD_PRESET,
     STRATEGY_TESTER_NYM15SR_NACUSD_RECLAIM_HOLD_PRESET,
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET,
+    STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET,
     STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET,
     STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET,
     STRATEGY_TESTER_NYM15SR_PRESET,
@@ -343,6 +345,8 @@ def test_generate_ea_settings_script_generates_nym15sr_preset(
             STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET,
             "NACUSD.c",
         ),
+        (STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET, "NACUSD.c"),
+        (STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET, "NACUSD.c"),
         (STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET, "SPCUSD.c"),
     ],
 )
@@ -370,6 +374,8 @@ def test_index_nym15sr_presets_validate_and_generate_set_files(
         not in {
             STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET,
             STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET,
+            STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET,
+            STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET,
         }
     )
     assert result.settings.nym15sr_require_reclaim_breakout_entry is (
@@ -417,6 +423,8 @@ def test_index_nym15sr_presets_validate_and_generate_set_files(
         in {
             STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_PRESET,
             STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET,
+            STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET,
+            STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET,
         }
         else "true"
     )
@@ -431,6 +439,18 @@ def test_index_nym15sr_presets_validate_and_generate_set_files(
         else "true"
     )
     assert f"NYM15SRRequireReclaimBreakoutEntry={expected_breakout}" in text
+    expected_body_levels = (
+        "true"
+        if preset == STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET
+        else "false"
+    )
+    assert f"NYM15SRUseM15BodyLevels={expected_body_levels}" in text
+    expected_long_only = (
+        "true"
+        if preset == STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET
+        else "false"
+    )
+    assert f"NYM15SRLongOnly={expected_long_only}" in text
     assert "not optimized index values" in text
 
 
@@ -444,6 +464,8 @@ def test_index_nym15sr_presets_validate_and_generate_set_files(
             STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_RECLAIM_HOLD_PRESET,
             "NACUSD.c",
         ),
+        (STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET, "NACUSD.c"),
+        (STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET, "NACUSD.c"),
         (STRATEGY_TESTER_NYM15SR_SPCUSD_PRESET, "SPCUSD.c"),
     ],
 )
@@ -504,6 +526,8 @@ def test_nacusd_nym15sr_preset_generates_ready_to_run_values(tmp_path: Path) -> 
     assert "NYM15SRMaxBarsAfterSweep=12" in text
     assert "NYM15SRRequireM15DirectionAgreement=true" in text
     assert "NYM15SRRequireReclaimBreakoutEntry=true" in text
+    assert "NYM15SRUseM15BodyLevels=false" in text
+    assert "NYM15SRLongOnly=false" in text
     assert "NACUSD.c" in text
     assert "NQCUSD.c" not in text
 
@@ -538,7 +562,75 @@ def test_nacusd_relaxed_m15_direction_variant_is_tester_only(
     assert "NYM15SRStopBufferPoints=500.00" in text
     assert "NYM15SRRequireM15DirectionAgreement=false" in text
     assert "NYM15SRRequireReclaimBreakoutEntry=true" in text
+    assert "NYM15SRUseM15BodyLevels=false" in text
+    assert "NYM15SRLongOnly=false" in text
     assert "relaxes the first M15 candle direction agreement filter" in text
+
+
+def test_nacusd_relaxed_m15_body_levels_variant_is_tester_only(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "nacusd_relaxed_m15_body_levels.set"
+    result = generate_settings_artifacts(
+        output_path=output,
+        preset_name=STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_BODY_LEVELS_PRESET,
+        stage="MonitorOnly",
+    )
+
+    assert result.status == "PASS"
+    assert result.settings.allowed_symbols == "NACUSD.c"
+    assert result.settings.enable_trading is False
+    assert result.settings.enable_trial_execution is False
+    assert result.settings.strategy_tester_execution_mode is True
+    assert result.settings.nym15sr_require_m15_direction_agreement is False
+    assert result.settings.nym15sr_use_m15_body_levels is True
+
+    text = output.read_text(encoding="utf-8")
+    assert "AllowedSymbols=NACUSD.c" in text
+    assert "StrategySelection=STRATEGY_NY_M15_SWEEP_RECLAIM" in text
+    assert "StrategyTimeframe=PERIOD_M5" in text
+    assert "EnableTrading=false" in text
+    assert "EnableTrialExecution=false" in text
+    assert "StrategyTesterExecutionMode=true" in text
+    assert "MaxSpreadPoints=1000" in text
+    assert "NYM15SRRequireM15DirectionAgreement=false" in text
+    assert "NYM15SRRequireReclaimBreakoutEntry=true" in text
+    assert "NYM15SRUseM15BodyLevels=true" in text
+    assert "NYM15SRLongOnly=false" in text
+    assert "uses the first M15 candle body high/low" in text
+
+
+def test_nacusd_relaxed_m15_long_only_variant_is_tester_only(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "nacusd_relaxed_m15_long_only.set"
+    result = generate_settings_artifacts(
+        output_path=output,
+        preset_name=STRATEGY_TESTER_NYM15SR_NACUSD_RELAXED_M15_LONG_ONLY_PRESET,
+        stage="MonitorOnly",
+    )
+
+    assert result.status == "PASS"
+    assert result.settings.allowed_symbols == "NACUSD.c"
+    assert result.settings.enable_trading is False
+    assert result.settings.enable_trial_execution is False
+    assert result.settings.strategy_tester_execution_mode is True
+    assert result.settings.nym15sr_require_m15_direction_agreement is False
+    assert result.settings.nym15sr_long_only is True
+
+    text = output.read_text(encoding="utf-8")
+    assert "AllowedSymbols=NACUSD.c" in text
+    assert "StrategySelection=STRATEGY_NY_M15_SWEEP_RECLAIM" in text
+    assert "StrategyTimeframe=PERIOD_M5" in text
+    assert "EnableTrading=false" in text
+    assert "EnableTrialExecution=false" in text
+    assert "StrategyTesterExecutionMode=true" in text
+    assert "MaxSpreadPoints=1000" in text
+    assert "NYM15SRRequireM15DirectionAgreement=false" in text
+    assert "NYM15SRRequireReclaimBreakoutEntry=true" in text
+    assert "NYM15SRUseM15BodyLevels=false" in text
+    assert "NYM15SRLongOnly=true" in text
+    assert "blocks bearish H1 setups" in text
 
 
 @pytest.mark.parametrize(
@@ -588,5 +680,7 @@ def test_nacusd_reclaim_hold_entry_variants_are_tester_only(
     assert "MaxSpreadPoints=1000" in text
     assert f"NYM15SRRequireM15DirectionAgreement={m15_agreement}" in text
     assert f"NYM15SRRequireReclaimBreakoutEntry={breakout_entry}" in text
+    assert "NYM15SRUseM15BodyLevels=false" in text
+    assert "NYM15SRLongOnly=false" in text
     assert "later closed M5 candle that remains on the reclaimed side" in text
     assert note_fragment in text

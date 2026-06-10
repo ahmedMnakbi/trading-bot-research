@@ -22,8 +22,10 @@ private:
    int      m_sessionKey;
    int      m_phase;
    bool     m_isBullish;
-   double   m_m15High;
-   double   m_m15Low;
+   double   m_m15High;          // sweep/reclaim reference high
+   double   m_m15Low;           // sweep/reclaim reference low
+   double   m_stopHigh;         // original M15 wick high for stop placement
+   double   m_stopLow;          // original M15 wick low for stop placement
    double   m_sweepExtreme;      // sweep high (bearish) or sweep low (bullish)
    datetime m_sweepBarTime;      // broker-time open of the M5 sweep candle
    double   m_reclaimLevel;      // reclaim candle low (bearish) or high (bullish)
@@ -42,6 +44,8 @@ private:
       m_isBullish     = false;
       m_m15High       = 0.0;
       m_m15Low        = 0.0;
+      m_stopHigh      = 0.0;
+      m_stopLow       = 0.0;
       m_sweepExtreme  = 0.0;
       m_sweepBarTime  = 0;
       m_reclaimLevel  = 0.0;
@@ -116,6 +120,8 @@ public:
       const int    maxBarsAfterSweep   = 12,
       const bool   requireM15DirectionAgreement = true,
       const bool   requireReclaimBreakoutEntry = true,
+      const bool   useM15BodyLevels = false,
+      const bool   longOnly = false,
       const int    maxTradesPerDay     = 1,
       const int    minHoldSeconds      = 180
    )
@@ -309,7 +315,13 @@ public:
 
          // Evaluate the first M15 setup candle
          MqlRates setupBar = m15[setupBarIdx];
-         double   m15Range = (setupBar.high - setupBar.low) / point;
+         double   wickHigh = setupBar.high;
+         double   wickLow  = setupBar.low;
+         double   bodyHigh = MathMax(setupBar.open, setupBar.close);
+         double   bodyLow  = MathMin(setupBar.open, setupBar.close);
+         double   levelHigh = useM15BodyLevels ? bodyHigh : wickHigh;
+         double   levelLow  = useM15BodyLevels ? bodyLow : wickLow;
+         double   m15Range = (wickHigh - wickLow) / point;
          bool     m15Bull  = setupBar.close > setupBar.open;
          bool     m15Bear  = setupBar.close < setupBar.open;
 
@@ -342,19 +354,33 @@ public:
             return;
          }
 
+         if(longOnly && h1Bearish)
+         {
+            m_phase = NYM15SR_PHASE_SKIP_DAY;
+            SetSkipDecision(decision, SIGNAL_SKIP_SESSION, strategyName, symbol, timeframe,
+               "NYM15SR_LONG_ONLY_SHORT_BLOCK",
+               "long-only research variant blocks bearish H1 setup; skipping day", now);
+            SetDecisionContext(decision, symbolClass, sessionTag, nyTime, hasNYTime,
+               minHoldSeconds, spreadStatus, volumeStatus);
+            return;
+         }
+
          m_isBullish = h1Bullish;
-         m_m15High   = setupBar.high;
-         m_m15Low    = setupBar.low;
+         m_m15High   = levelHigh;
+         m_m15Low    = levelLow;
+         m_stopHigh  = wickHigh;
+         m_stopLow   = wickLow;
          m_phase     = NYM15SR_PHASE_CRT_CANDLE_SET;
 
          // Return SETUP_FORMING; sweep detection begins on the next bar evaluation.
          SetSetupFormingDecision(decision, strategyName, symbol, timeframe,
             "NYM15SR_CRT_CANDLE_SET",
             StringFormat(
-               "first M15 candle set: direction=%s m15_direction_agreement=%s H=%.5f L=%.5f; waiting for M5 sweep",
+               "first M15 candle set: direction=%s m15_direction_agreement=%s level_mode=%s H=%.5f L=%.5f stopH=%.5f stopL=%.5f; waiting for M5 sweep",
                m_isBullish ? "BULLISH" : "BEARISH",
                requireM15DirectionAgreement ? "REQUIRED" : "RELAXED",
-               m_m15High, m_m15Low),
+               useM15BodyLevels ? "BODY" : "WICK",
+               m_m15High, m_m15Low, m_stopHigh, m_stopLow),
             now);
          SetDecisionContext(decision, symbolClass, sessionTag, nyTime, hasNYTime,
             minHoldSeconds, spreadStatus, volumeStatus);
@@ -596,10 +622,11 @@ public:
 
          if(m_isBullish)
          {
-            if(bar.close > triggerLevel)
-            {
+           if(bar.close > triggerLevel)
+           {
                entryPrice = bar.close;
-               stopLoss   = m_sweepExtreme - (stopBufferPoints * point);
+               double stopReference = useM15BodyLevels ? MathMin(m_sweepExtreme, m_stopLow) : m_sweepExtreme;
+               stopLoss   = stopReference - (stopBufferPoints * point);
                double risk = entryPrice - stopLoss;
                if(risk > 0.0)
                {
@@ -611,10 +638,11 @@ public:
          }
          else
          {
-            if(bar.close < triggerLevel)
-            {
+           if(bar.close < triggerLevel)
+           {
                entryPrice = bar.close;
-               stopLoss   = m_sweepExtreme + (stopBufferPoints * point);
+               double stopReference = useM15BodyLevels ? MathMax(m_sweepExtreme, m_stopHigh) : m_sweepExtreme;
+               stopLoss   = stopReference + (stopBufferPoints * point);
                double risk = stopLoss - entryPrice;
                if(risk > 0.0)
                {
