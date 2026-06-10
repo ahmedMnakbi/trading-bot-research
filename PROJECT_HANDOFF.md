@@ -133,6 +133,16 @@ Current first fast-iteration candidate:
   considered only after tester behavior is reviewed. Pine Script / TradingView
   companion work is paused.
 
+Dedicated broker index tester presets were added for this strategy:
+
+- `strategy-tester-nqcusd-c-m5-ny-m15-sweep-reclaim` for `NQCUSD.c`
+- `strategy-tester-spcusd-c-m5-ny-m15-sweep-reclaim` for `SPCUSD.c`
+
+These are research/demo Strategy Tester presets only. Their defaults are not
+optimized index values. Before interpreting results, verify point size, tick
+value, spread, and trading hours in MT5 Symbol Specification. Next practical
+test priority: `NQCUSD.c` M5 first, then `SPCUSD.c` M5.
+
 The next assistant should not expand live Trial execution, add symbols, add
 pending orders, add retries, add trailing stops, add breakeven logic, optimize
 parameters, or enable Surge/Vanguard/protected stages.
